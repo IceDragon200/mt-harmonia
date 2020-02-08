@@ -28,12 +28,10 @@ function ic:update(delta)
   end
 end
 
-local mana_system = ManaSystem:new()
+local passive_system = PassiveSystem:new()
 
-minetest.register_on_mods_loaded(mana_system:method("init"))
-minetest.register_globalstep(mana_system:method("update"))
-minetest.register_on_shutdown(mana_system:method("terminate"))
+minetest.register_on_mods_loaded(passive_system:method("init"))
+minetest.register_globalstep(passive_system:method("update"))
+minetest.register_on_shutdown(passive_system:method("terminate"))
 
-harmonia_mana.mana_system = mana_system
-
-harmonia_passive.passive_system = PassiveSystem:new()
+harmonia_passive.passive_system = passive_system
