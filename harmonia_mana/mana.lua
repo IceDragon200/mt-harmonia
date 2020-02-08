@@ -32,18 +32,33 @@ function ic:initialize()
   -- Systems are a list of modules that should be called on update
   -- Using the mana system entities
   self.systems = {}
+
+  self.initialized = false
+  self.terminated = false
 end
 
 function ic:init()
   --
+  minetest.log("info", "harmonia bestows mana to the world")
+  self.initialized = true
 end
 
 function ic:terminate()
   --
+  minetest.log("info", "harmonia retracts mana from the world")
+  self.terminated = true
 end
 
 function ic:update(delta)
   --
+  if not self.initialized then
+    -- the system hasn't been initialized yet, skip the update
+    return
+  end
+  if self.terminated then
+    -- the system has been terminated, skip the update
+    return
+  end
   local players = minetest.get_connected_players()
 
   for _, player in pairs(players) do
@@ -62,4 +77,5 @@ minetest.register_on_mods_loaded(mana_system:method("init"))
 minetest.register_globalstep(mana_system:method("update"))
 minetest.register_on_shutdown(mana_system:method("terminate"))
 
+harmonia_mana.ManaSchema = ManaSchema
 harmonia_mana.mana_system = mana_system
