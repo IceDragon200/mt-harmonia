@@ -1,4 +1,6 @@
 minetest.register_node("harmonia_totems:dog_pillar", {
+  codex_entry_id = "harmonia_totems:animal_pillar",
+
   description = "Dog Pillar",
 
   groups = {
@@ -7,8 +9,8 @@ minetest.register_node("harmonia_totems:dog_pillar", {
   },
 
   tiles = {
-    "harmonia_animal_pillars_dog.bottom.png",
     "harmonia_animal_pillars_dog.top.png",
+    "harmonia_animal_pillars_dog.bottom.png",
     "harmonia_animal_pillars_dog.side.png",
     "harmonia_animal_pillars_dog.side.png",
     "harmonia_animal_pillars_dog.side.png",
