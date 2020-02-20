@@ -1,6 +1,8 @@
 local crystal_sounds = default.node_sound_glass_defaults()
 
 minetest.register_node("harmonia_crystals:rooted_crystal_common", {
+  codex_entry_id = "harmonia_totems:rooted_crystal",
+
   base_description = "Rooted Crystal",
   basename = "harmonia_crystals:rooted_crystal",
 
@@ -54,6 +56,8 @@ local variants = {
 
 for variant_basename, variant_name in pairs(variants) do
   minetest.register_node("harmonia_crystals:rooted_crystal_" .. variant_basename, {
+    codex_entry_id = "harmonia_totems:rooted_crystal",
+
     base_description = "Rooted Crystal",
     basename = "harmonia_crystals:rooted_crystal",
 
