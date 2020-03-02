@@ -33,6 +33,10 @@ function ic:terminate()
   self.terminated = true
 end
 
+function ic:on_player_join(player)
+  hb.init_hudbar(player, 'exp', 10, 10, false)
+end
+
 function ic:_execute_modifiers(event, exp_type)
   local continue = true
   local reason
@@ -208,9 +212,4 @@ function ic:decrease_exp(entity, exp_type, amount, reason)
   return self:increase_exp(entity, exp_type, -amount, reason)
 end
 
-local exp_system = ExpSystem:new()
-
-minetest.register_on_mods_loaded(exp_system:method("init"))
-minetest.register_on_shutdown(exp_system:method("terminate"))
-
-harmonia_exp.exp_system = exp_system
+harmonia_exp.ExpSystem = ExpSystem
