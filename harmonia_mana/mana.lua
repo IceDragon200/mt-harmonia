@@ -71,11 +71,9 @@ function ic:update(delta)
   end
 end
 
-local mana_system = ManaSystem:new()
+function ic:on_player_join(player)
+  hb.init_hudbar(player, 'mana', 10, 10, false)
+end
 
-minetest.register_on_mods_loaded(mana_system:method("init"))
-minetest.register_globalstep(mana_system:method("update"))
-minetest.register_on_shutdown(mana_system:method("terminate"))
-
+harmonia_mana.ManaSystem = ManaSystem
 harmonia_mana.ManaSchema = ManaSchema
-harmonia_mana.mana_system = mana_system
