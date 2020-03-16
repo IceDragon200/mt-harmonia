@@ -5,6 +5,28 @@ function ic:initialize()
   --
   self.elapsed = 0
   self.timer = 0
+
+  self.multiplier_callbacks = {}
+end
+
+--
+-- Register a multiplier callback
+-- This callback is called when nyctophobia needs to calculate the scale/multiplier
+-- for the nyctophobia effect, particularly it's duration calculations
+--
+-- @type MultiplierCallback :: (player: Player, scale: Float, delta: Float) => (scale: Float)
+-- @spec register_multiplier(name: String, MultiplierCallback) :: void
+function ic:register_multiplier(name, callback)
+  if self.multiplier_callbacks[name] then
+    error("multiplier callback is already registered name=" .. name)
+  end
+  assert(callback, "expected a callback")
+  self.multiplier_callbacks[name] = callback
+end
+
+-- @spec unregister_multiplier(name: String) :: void
+function ic:unregister_multiplier(name)
+  self.multiplier_callbacks[name] = nil
 end
 
 function ic:init()
@@ -24,12 +46,12 @@ function ic:update(delta)
   while self.timer > 1 do
     self.timer = self.timer - 1
     if minetest.settings:get_bool("enable_damage") then
-      self:_perform_step()
+      self:_perform_step(1)
     end
   end
 end
 
-function ic:_perform_step()
+function ic:_perform_step(delta)
   --
   local tod = minetest.get_timeofday()
 
@@ -39,7 +61,7 @@ function ic:_perform_step()
   -- so night is everything else
   if tod < 0.25 or tod >= 0.75 then
     for _, player in pairs(players) do
-      self:_perform_step_on_player(player)
+      self:_perform_step_on_player(player, delta)
     end
   else
     for _, player in pairs(players) do
@@ -63,7 +85,7 @@ local function inflict_damage(player, amount, nyctophobia_level)
                                             level = nyctophobia_level })
 end
 
-function ic:_perform_step_on_player(player)
+function ic:_perform_step_on_player(player, delta)
   local meta = player:get_meta()
 
   if meta:get_int("nyctophobia_flag") == 0 then
@@ -81,12 +103,16 @@ function ic:_perform_step_on_player(player)
     if light_level and light_level < 8 then
       -- every step is handled in blocks of a second
       -- this is how long an entity has spent total under the effect of nyctophobia
-      meta:set_float("nyctophobia_duration_total", meta:get_float("nyctophobia_duration_total") + 1)
+      meta:set_float("nyctophobia_duration_total", meta:get_float("nyctophobia_duration_total") + delta)
       -- this is how long an entity has spent under nyctophobia recently, this value resets on higher light values
       -- nyctophobia damage can take place
       local scale = 2 * (8 - light_level) / 8
 
-      nyctophobia_duration = nyctophobia_duration + 1 * scale
+      for _name, callback in pairs(self.multiplier_callbacks) do
+        scale = callback(player, scale, delta)
+      end
+
+      nyctophobia_duration = nyctophobia_duration + delta * scale
 
       if nyctophobia_duration >= 1 and nyctophobia_level <= 0 then
         -- This is stage one of the effect, no damage is applied at this level
@@ -118,7 +144,7 @@ function ic:_perform_step_on_player(player)
 
       meta:set_float("nyctophobia_duration", nyctophobia_duration)
       local nyctophobia_damage_duration = meta:get_float("nyctophobia_damage_duration")
-      nyctophobia_damage_duration = nyctophobia_damage_duration + 1
+      nyctophobia_damage_duration = nyctophobia_damage_duration + delta
 
       if nyctophobia_level == 0 then
         -- nothing
