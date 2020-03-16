@@ -1,10 +1,11 @@
 harmonia = rawget(_G, "harmonia") or {}
-harmonia.nyctophobia = harmonia.nyctophobia or harmonia_nyctophobia.nyctophobia_system
+harmonia.nyctophobia = harmonia.nyctophobia or {}
+harmonia.nyctophobia.system = harmonia_nyctophobia.nyctophobia_system
 
 -- Nyctophobia's default node multiplier
 -- Define a node with the has_nyctophobia_multiplier group (doesn't matter what value you set at currently)
 -- The node should have a 'nyctophobia' table with a 'multiplier' field.
-harmonia.nyctophobia.register_multiplier("harmonia_nyctophobia:node_multiplier", function (player, scale, delta)
+harmonia.nyctophobia.system.register_multiplier("harmonia_nyctophobia:node_multiplier", function (player, scale, delta)
   local center_pos = vector.floor(player:get_pos())
   local pos1 = vector.subtract(center_pos, 16)
   local pos2 = vector.add(center_pos, 16)
