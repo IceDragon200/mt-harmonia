@@ -34,7 +34,9 @@ function ic:terminate()
 end
 
 function ic:on_player_join(player)
-  hb.init_hudbar(player, 'exp', 10, 10, false)
+  if rawget(_G, "hb") then
+    hb.init_hudbar(player, 'exp', 10, 10, false)
+  end
 end
 
 function ic:_execute_modifiers(event, exp_type)

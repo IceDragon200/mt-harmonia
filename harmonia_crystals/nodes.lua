@@ -1,4 +1,4 @@
-local crystal_sounds = default.node_sound_glass_defaults()
+local crystal_sounds = yatm.node_sounds:build("glass")
 
 minetest.register_node("harmonia_crystals:rooted_crystal_common", {
   codex_entry_id = "harmonia_totems:rooted_crystal",
