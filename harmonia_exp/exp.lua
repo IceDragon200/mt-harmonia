@@ -7,7 +7,7 @@
 --
 -- Note this system ONLY handles experience, not levels or the like.
 --
-local ExpSystem = yatm_core.Class:extends("ExpSystem")
+local ExpSystem = foundation.com.Class:extends("ExpSystem")
 local ic = assert(ExpSystem.instance_class)
 
 function ic:initialize()

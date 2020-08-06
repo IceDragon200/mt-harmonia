@@ -5,10 +5,13 @@
   Adds elemental crystals
 
 ]]
-harmonia_crystals = rawget(_G, "harmonia_crystals") or {}
-harmonia_crystals.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("harmonia_crystals", "0.0.1")
 
-dofile(harmonia_crystals.modpath .. "/api.lua")
+if not foundation.com.node_sounds:is_registered("crystal") then
+  foundation.com.node_sounds:register("crystal", {})
+end
 
-dofile(harmonia_crystals.modpath .. "/items.lua")
-dofile(harmonia_crystals.modpath .. "/nodes.lua")
+mod:require("api.lua")
+
+mod:require("items.lua")
+mod:require("nodes.lua")

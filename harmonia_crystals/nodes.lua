@@ -1,4 +1,7 @@
-local crystal_sounds = yatm.node_sounds:build("glass")
+local crystal_sounds = foundation.com.node_sounds:build("crystal")
+
+local Cuboid = assert(foundation.com.Cuboid)
+local nb = Cuboid.new_fast_node_box
 
 minetest.register_node("harmonia_crystals:rooted_crystal_common", {
   codex_entry_id = "harmonia_totems:rooted_crystal",
@@ -26,12 +29,12 @@ minetest.register_node("harmonia_crystals:rooted_crystal_common", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(2, 0, 2, 4, 14, 4):fast_node_box(),
-      yatm_core.Cuboid:new(4, 0, 4, 4, 10, 4):fast_node_box(),
-      yatm_core.Cuboid:new(5, 0, 3, 6, 12, 7):fast_node_box(),
-      yatm_core.Cuboid:new(12, 0, 2, 2, 15, 2):fast_node_box(),
-      yatm_core.Cuboid:new(10, 0, 7, 3, 15, 3):fast_node_box(),
-      yatm_core.Cuboid:new(7, 0, 9, 3, 9, 4):fast_node_box(),
+      nb(2, 0, 2, 4, 14, 4),
+      nb(4, 0, 4, 4, 10, 4),
+      nb(5, 0, 3, 6, 12, 7),
+      nb(12, 0, 2, 2, 15, 2),
+      nb(10, 0, 7, 3, 15, 3),
+      nb(7, 0, 9, 3, 9, 4),
     }
   },
 
@@ -81,12 +84,12 @@ for variant_basename, variant_name in pairs(variants) do
     node_box = {
       type = "fixed",
       fixed = {
-        yatm_core.Cuboid:new(2, 0, 2, 4, 14, 4):fast_node_box(),
-        yatm_core.Cuboid:new(4, 0, 4, 4, 10, 4):fast_node_box(),
-        yatm_core.Cuboid:new(5, 0, 3, 6, 12, 7):fast_node_box(),
-        yatm_core.Cuboid:new(12, 0, 2, 2, 15, 2):fast_node_box(),
-        yatm_core.Cuboid:new(10, 0, 7, 3, 15, 3):fast_node_box(),
-        yatm_core.Cuboid:new(7, 0, 9, 3, 9, 4):fast_node_box(),
+        nb(2, 0, 2, 4, 14, 4),
+        nb(4, 0, 4, 4, 10, 4),
+        nb(5, 0, 3, 6, 12, 7),
+        nb(12, 0, 2, 2, 15, 2),
+        nb(10, 0, 7, 3, 15, 3),
+        nb(7, 0, 9, 3, 9, 4),
       }
     },
 

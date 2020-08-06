@@ -7,9 +7,8 @@
   i.e. It adds MP to players and any other entities that need it.
 
 ]]
-harmonia_mana = rawget(_G, "harmonia_mana") or {}
-harmonia_mana.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("harmonia_mana", "0.0.1")
 
-dofile(harmonia_mana.modpath .. "/mana.lua")
+mod:require("mana.lua")
 
-dofile(harmonia_mana.modpath .. "/api.lua")
+mod:require("api.lua")

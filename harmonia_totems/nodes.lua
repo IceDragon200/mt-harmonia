@@ -3,6 +3,9 @@
 --
 -- These pillars just sit around being cute
 --
+local Cuboid = assert(foundation.com.Cuboid)
+local nb = Cuboid.new_fast_node_box
+
 minetest.register_node("harmonia_totems:dog_pillar", {
   codex_entry_id = "harmonia_totems:animal_pillar",
 
@@ -30,24 +33,24 @@ minetest.register_node("harmonia_totems:dog_pillar", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(3, 0, 3, 10, 12, 10):fast_node_box(),
+      nb(3, 0, 3, 10, 12, 10),
       -- base ears
-      yatm_core.Cuboid:new(3, 12, 3, 3, 1, 3):fast_node_box(),
-      yatm_core.Cuboid:new(10, 12, 3, 3, 1, 3):fast_node_box(),
-      yatm_core.Cuboid:new(3, 12, 10, 3, 1, 3):fast_node_box(),
-      yatm_core.Cuboid:new(10, 12, 10, 3, 1, 3):fast_node_box(),
+      nb(3, 12, 3, 3, 1, 3),
+      nb(10, 12, 3, 3, 1, 3),
+      nb(3, 12, 10, 3, 1, 3),
+      nb(10, 12, 10, 3, 1, 3),
 
-      yatm_core.Cuboid:new( 3, 13, 3, 2, 1, 2):fast_node_box(),
-      yatm_core.Cuboid:new(11, 13, 3, 2, 1, 2):fast_node_box(),
-      yatm_core.Cuboid:new( 3, 13, 11, 2, 1, 2):fast_node_box(),
-      yatm_core.Cuboid:new(11, 13, 11, 2, 1, 2):fast_node_box(),
+      nb( 3, 13, 3, 2, 1, 2),
+      nb(11, 13, 3, 2, 1, 2),
+      nb( 3, 13, 11, 2, 1, 2),
+      nb(11, 13, 11, 2, 1, 2),
     }
   },
 
   selection_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(3, 0, 3, 10, 14, 10):fast_node_box()
+      nb(3, 0, 3, 10, 14, 10),
     }
   },
 
@@ -88,24 +91,24 @@ minetest.register_node("harmonia_totems:demented_pillar", {
   node_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(3, 0, 3, 10, 12, 10):fast_node_box(),
+      nb(3, 0, 3, 10, 12, 10),
       -- base ears
-      yatm_core.Cuboid:new(3, 12, 3, 3, 1, 3):fast_node_box(),
-      yatm_core.Cuboid:new(10, 12, 3, 3, 1, 3):fast_node_box(),
-      yatm_core.Cuboid:new(3, 12, 10, 3, 1, 3):fast_node_box(),
-      yatm_core.Cuboid:new(10, 12, 10, 3, 1, 3):fast_node_box(),
+      nb(3, 12, 3, 3, 1, 3),
+      nb(10, 12, 3, 3, 1, 3),
+      nb(3, 12, 10, 3, 1, 3),
+      nb(10, 12, 10, 3, 1, 3),
 
-      yatm_core.Cuboid:new( 3, 13, 3, 2, 1, 2):fast_node_box(),
-      yatm_core.Cuboid:new(11, 13, 3, 2, 1, 2):fast_node_box(),
-      yatm_core.Cuboid:new( 3, 13, 11, 2, 1, 2):fast_node_box(),
-      yatm_core.Cuboid:new(11, 13, 11, 2, 1, 2):fast_node_box(),
+      nb( 3, 13, 3, 2, 1, 2),
+      nb(11, 13, 3, 2, 1, 2),
+      nb( 3, 13, 11, 2, 1, 2),
+      nb(11, 13, 11, 2, 1, 2),
     }
   },
 
   selection_box = {
     type = "fixed",
     fixed = {
-      yatm_core.Cuboid:new(3, 0, 3, 10, 14, 10):fast_node_box()
+      nb(3, 0, 3, 10, 14, 10),
     }
   },
 

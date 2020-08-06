@@ -1,5 +1,5 @@
 local ManaSchema =
-  yatm_core.MetaSchema:new("mana", "", {
+  foundation.com.MetaSchema:new("mana", "", {
     -- Mana Level dictates whether or not the object has mana or not
     -- For now it's either 0 or 1, but could change if I deem it necessary
     -- 0 means the entity has no mana, otherwise it does.
@@ -24,7 +24,7 @@ local ManaSchema =
     },
   }):compile("manasys")
 
-local ManaSystem = yatm_core.Class:extends("ManaSystem")
+local ManaSystem = foundation.com.Class:extends("ManaSystem")
 local ic = assert(ManaSystem.instance_class)
 
 function ic:initialize()

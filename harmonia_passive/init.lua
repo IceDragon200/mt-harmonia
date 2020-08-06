@@ -5,9 +5,8 @@
   Adds passive abilities and effects to entities.
 
 ]]
-harmonia_passive = rawget(_G, "harmonia_passive") or {}
-harmonia_passive.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("harmonia_passive", "0.0.1")
 
-dofile(harmonia_passive.modpath .. "/passives.lua")
+mod:require("passives.lua")
 
-dofile(harmonia_passive.modpath .. "/api.lua")
+mod:require("api.lua")

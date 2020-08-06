@@ -1,4 +1,4 @@
-local PassiveSystem = yatm_core.Class:extends("PassiveSystem")
+local PassiveSystem = foundation.com.Class:extends("PassiveSystem")
 local ic = PassiveSystem.instance_class
 
 function ic:initialize()

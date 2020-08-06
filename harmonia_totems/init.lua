@@ -5,7 +5,6 @@
   Random little statues
 
 ]]
-harmonia_totems = rawget(_G, "harmonia_totems") or {}
-harmonia_totems.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("harmonia_totems", "0.0.1")
 
-dofile(harmonia_totems.modpath .. "/nodes.lua")
+mod:require("nodes.lua")

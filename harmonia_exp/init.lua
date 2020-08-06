@@ -5,9 +5,8 @@
   Adds a experience and level system
 
 ]]
-harmonia_exp = rawget(_G, "harmonia_exp") or {}
-harmonia_exp.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("harmonia_exp", "0.0.1")
 
-dofile(harmonia_exp.modpath .. "/exp.lua")
+mod:require("exp.lua")
 
-dofile(harmonia_exp.modpath .. "/api.lua")
+mod:require("api.lua")

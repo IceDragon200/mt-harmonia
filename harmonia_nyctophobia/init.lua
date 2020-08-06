@@ -7,9 +7,8 @@
   To make it... less annoying, it only happens at night
 
 ]]
-harmonia_nyctophobia = rawget(_G, "harmonia_nyctophobia") or {}
-harmonia_nyctophobia.modpath = minetest.get_modpath(minetest.get_current_modname())
+local mod = foundation.new_module("harmonia_nyctophobia", "0.0.1")
 
-dofile(harmonia_nyctophobia.modpath .. "/nyctophobia.lua")
+mod:require("nyctophobia.lua")
 
-dofile(harmonia_nyctophobia.modpath .. "/api.lua")
+mod:require("api.lua")

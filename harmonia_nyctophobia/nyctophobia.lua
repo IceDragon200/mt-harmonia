@@ -1,4 +1,4 @@
-local NyctophobiaSystem = yatm_core.Class:extends("NyctophobiaSystem")
+local NyctophobiaSystem = foundation.com.Class:extends("NyctophobiaSystem")
 local ic = NyctophobiaSystem.instance_class
 
 function ic:initialize()
