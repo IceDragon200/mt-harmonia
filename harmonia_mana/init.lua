@@ -7,7 +7,7 @@
   i.e. It adds MP to players and any other entities that need it.
 
 ]]
-local mod = foundation.new_module("harmonia_mana", "0.0.1")
+local mod = foundation.new_module("harmonia_mana", "0.1.0")
 
 mod:require("mana.lua")
 
