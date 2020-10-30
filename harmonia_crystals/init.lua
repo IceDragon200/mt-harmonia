@@ -5,7 +5,7 @@
   Adds elemental crystals
 
 ]]
-local mod = foundation.new_module("harmonia_crystals", "0.0.1")
+local mod = foundation.new_module("harmonia_crystals", "0.1.0")
 
 if not foundation.com.node_sounds:is_registered("crystal") then
   foundation.com.node_sounds:register("crystal", {})
