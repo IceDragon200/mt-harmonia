@@ -75,6 +75,8 @@ for variant_basename, variant_name in pairs(variants) do
 
     description = variant_name .. " Crystal",
 
+    element = variant_basename,
+
     groups = {
       oddly_breakable_by_hand = 1,
       crystal = 1,
