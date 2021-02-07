@@ -57,9 +57,9 @@ function ic:_perform_step(delta)
 
   local players = minetest.get_connected_players()
 
-  -- day is between 06:00 and 18:00
+  -- day is between 06:00 and (0.75: 18:00)
   -- so night is everything else
-  if tod < 0.25 or tod >= 0.75 then
+  if tod < 0.25 or tod >= 0.80 then
     for _, player in pairs(players) do
       self:_perform_step_on_player(player, delta)
     end
