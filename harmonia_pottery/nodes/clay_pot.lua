@@ -22,6 +22,7 @@ minetest.register_node("harmonia_pottery:clay_pot", {
     }
   },
 
+  use_texture_alpha = "clip",
   tiles = {
     "harmonia_clay_pot_top.png",
     "harmonia_clay_pot_bottom.png",

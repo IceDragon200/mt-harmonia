@@ -162,7 +162,8 @@ end
 --   old_exp = integer, -- the exp the user had before increase/decrease
 --   exp = integer, -- the exp the user will have after increase/decrease
 -- }
--- @spec set_exp(Entity, Integer, Reason)
+--
+-- @spec set_exp(Entity, exp_type: String, Integer, Reason) :: (Boolean, Error)
 function ic:set_exp(entity, exp_type, amount, reason)
   local amount = math.min(math.max(amount, 0), self.max_exp)
   local set_exp_func = self:_set_exp_function(entity)

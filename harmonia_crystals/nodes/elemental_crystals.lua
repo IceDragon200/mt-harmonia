@@ -47,6 +47,7 @@ minetest.register_node("harmonia_crystals:rooted_crystal_common", {
   drawtype = "nodebox",
   node_box = nodebox,
 
+  use_texture_alpha = "clip",
   tiles = {
     "harmonia_crystal_top.png",
     "harmonia_crystal_top.png",
@@ -94,6 +95,7 @@ for variant_basename, variant_name in pairs(variants) do
     drawtype = "nodebox",
     node_box = nodebox,
 
+    use_texture_alpha = "clip",
     tiles = {
       "harmonia_crystal_" .. variant_basename .. ".top.png",
       "harmonia_crystal_" .. variant_basename .. ".top.png",
