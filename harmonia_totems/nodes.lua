@@ -17,6 +17,7 @@ minetest.register_node("harmonia_totems:dog_pillar", {
     has_nyctophobia_multiplier = 1,
   },
 
+  use_texture_alpha = "clip",
   tiles = {
     "harmonia_animal_pillars_dog.top.png",
     "harmonia_animal_pillars_dog.bottom.png",
@@ -75,6 +76,7 @@ minetest.register_node("harmonia_totems:demented_pillar", {
     has_nyctophobia_multiplier = 1,
   },
 
+  use_texture_alpha = "clip",
   tiles = {
     "harmonia_animal_pillars_demented.top.png",
     "harmonia_animal_pillars_demented.bottom.png",

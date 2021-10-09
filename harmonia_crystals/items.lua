@@ -31,7 +31,7 @@ for variant_basename,variant_description in pairs(variants) do
     basename = "harmonia_crystals:crystal_shard",
     base_description = "Crystal Shard",
 
-    description = "Crystal Shard ("..variant_description..")",
+    description = "Crystal Shard ["..variant_description.."]",
     inventory_image = "harmonia_crystal_shards_"..variant_basename..".png",
 
     groups = {
@@ -46,7 +46,7 @@ for variant_basename,variant_description in pairs(variants) do
     basename = "harmonia_crystals:crystal",
     base_description = "Pure Crystal",
 
-    description = "Pure Crystal ("..variant_description..")",
+    description = "Pure Crystal ["..variant_description.."]",
     inventory_image = "harmonia_element_crystal."..variant_basename..".png",
 
     groups = {

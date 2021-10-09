@@ -2,7 +2,7 @@
 
   Harmonia Crystals
 
-  Adds elemental crystals
+    Adds elemental crystals
 
 ]]
 local mod = foundation.new_module("harmonia_crystals", "0.1.0")
