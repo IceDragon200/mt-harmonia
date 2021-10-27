@@ -31,7 +31,7 @@ harmonia.mana.ManaSchema = harmonia_mana.ManaSchema
 harmonia.mana.system = mana_system
 
 if rawget(_G, "nokore_player_hud") then
-  nokore_player_hud.register_hud_element("mana", {
+  nokore.player_hud:register_hud_element("mana", {
     hud_elem_type = "statbar",
     position = {
       x = 0.5,
