@@ -209,11 +209,5 @@ function ic:set_entity_mana_regen(entity, value)
   end
 end
 
-function ic:on_player_join(player)
-  if rawget(_G, "hb") then
-    hb.init_hudbar(player, 'mana', 10, 10, false)
-  end
-end
-
 harmonia_mana.ManaSystem = ManaSystem
 harmonia_mana.ManaSchema = ManaSchema

@@ -25,10 +25,24 @@ mana_system:register_system("harmonia_mana:mana_regen", {
 minetest.register_on_mods_loaded(mana_system:method("init"))
 minetest.register_globalstep(mana_system:method("update"))
 minetest.register_on_shutdown(mana_system:method("terminate"))
-minetest.register_on_joinplayer(mana_system:method("on_player_join"))
 
 harmonia.mana.ManaSchema = harmonia_mana.ManaSchema
 harmonia.mana.system = mana_system
+
+if rawget(_G, "hb") then
+  nokore.player_service:register_on_player_join(function (player)
+    hb.init_hudbar(player, 'mana', 10, 10, false)
+  end)
+
+  hb.register_hudbar("mana",
+                     0xFFFFFF,
+                     "Mana",
+                     { icon = "harmonia_hudbar_mana_icon.png",
+                       bgicon = "harmonia_hudbar_mana_bgicon.png",
+                       bar = "harmonia_hudbar_mana.png" },
+                     0,
+                     10, false)
+end
 
 if rawget(_G, "nokore_player_hud") then
   nokore.player_hud:register_hud_element("mana", {
@@ -49,15 +63,9 @@ if rawget(_G, "nokore_player_hud") then
       y = -(48 + 24 + 16 + 8 + 32)
     },
   })
-end
 
-if rawget(_G, "hb") then
-  hb.register_hudbar("mana",
-                     0xFFFFFF,
-                     "Mana",
-                     { icon = "harmonia_hudbar_mana_icon.png",
-                       bgicon = "harmonia_hudbar_mana_bgicon.png",
-                       bar = "harmonia_hudbar_mana.png" },
-                     0,
-                     10, false)
+  nokore.player_hud:register_on_init_player_hud_element("harmonia_mana:mana_init", "mana", function (player, _elem_name, hud_def)
+    -- TODO: determine if the player actually has mana and if their hud should be displayed
+    return hud_def
+  end)
 end
