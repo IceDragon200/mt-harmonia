@@ -2,7 +2,7 @@ harmonia = rawget(_G, "harmonia") or {}
 harmonia.passive = harmonia.passive or {}
 
 local DATA_DOMAIN = "harmonia_passive"
-local passive_system = PassiveSystem:new(DATA_DOMAIN)
+local passive_system = harmonia_passive.PassiveSystem:new(DATA_DOMAIN)
 
 minetest.register_on_mods_loaded(passive_system:method("init"))
 minetest.register_on_shutdown(passive_system:method("terminate"))
