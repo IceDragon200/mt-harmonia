@@ -30,7 +30,7 @@ harmonia.mana.ManaSchema = harmonia_mana.ManaSchema
 harmonia.mana.system = mana_system
 
 if rawget(_G, "hb") then
-  nokore.player_service:register_on_player_join(function (player)
+  nokore.player_service:register_on_player_join("harmonia_mana:init_hb", function (player)
     hb.init_hudbar(player, 'mana', 10, 10, false)
   end)
 
