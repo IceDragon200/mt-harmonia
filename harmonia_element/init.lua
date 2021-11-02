@@ -8,6 +8,8 @@
 --
 local mod = foundation.new_module("harmonia_element", "0.0.0")
 
+mod:require("element_system.lua")
+
 mod:require("api.lua")
 
 mod:require("items.lua")
