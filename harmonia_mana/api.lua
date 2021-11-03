@@ -1,33 +1,57 @@
 harmonia = rawget(_G, "harmonia") or {}
 harmonia.mana = harmonia.mana or {}
 
-local mana_system = harmonia_mana.ManaSystem:new()
+local player_service = assert(nokore.player_service)
+local player_stats = assert(nokore.player_stats)
 
 -- The Mana system's regen feature
-mana_system:register_system("harmonia_mana:mana_regen", {
-  init = function ()
-    return {}
-  end,
+player_service:register_update(
+  "harmonia_mana:update_players",
+  function (players, dt, player_assigns)
+    local mana
+    local mana_max
+    local mana_regen
+    local mana_degen
+    local mana_gen_time
 
-  update = function (delta, player, system, assigns)
-    local regen = system:get_entity_mana_regen(player)
-    if regen > 0 then
-      local mana = system:get_entity_mana(player)
-      system:set_entity_mana(player, mana + regen)
+    for player_name, player in pairs(players) do
+      mana_max = player_stats:get_player_stat(player, "mana_max")
+      mana = player_stats:get_player_stat(player, "mana")
+      mana_regen = player_stats:get_player_stat(player, "mana_regen")
+      mana_degen = player_stats:get_player_stat(player, "mana_degen")
+
+      mana_gen_time = player_assigns["mana_gen_time"] or 0
+      mana_gen_time = mana_gen_time + dt
+
+      -- mana *gen
+      mana_gen_time = player_assigns["mana_gen_time"] or 0
+      mana_gen_time = mana_gen_time + dt
+
+      if mana_gen_time > 1 then
+        mana_gen_time = mana_gen_time - 1
+
+        if mana_regen > 0 then
+          -- mana is allowed to overflow
+          if mana < mana_max then
+            -- but if it's under the max, it will cap it instead
+            mana = math.min(mana + mana_regen, mana_max)
+          end
+        end
+
+        if mana_degen > 0 then
+          -- only try degen if the mana is greater than zero
+          if mana > 0 then
+            mana = math.max(mana - mana_degen, 0)
+          end
+        end
+
+        player_stats:set_player_stat(player, "mana", mana)
+      end
+
+      player_assigns["mana_gen_time"] = mana_gen_time
     end
-  end,
-
-  terminate = function (_reason, _assigns)
-    --
-  end,
-})
-
-minetest.register_on_mods_loaded(mana_system:method("init"))
-minetest.register_globalstep(mana_system:method("update"))
-minetest.register_on_shutdown(mana_system:method("terminate"))
-
-harmonia.mana.ManaSchema = harmonia_mana.ManaSchema
-harmonia.mana.system = mana_system
+  end
+)
 
 if rawget(_G, "hb") then
   nokore.player_service:register_on_player_join("harmonia_mana:init_hb", function (player)
@@ -65,7 +89,12 @@ if rawget(_G, "nokore_player_hud") then
   })
 
   nokore.player_hud:register_on_init_player_hud_element("harmonia_mana:mana_init", "mana", function (player, _elem_name, hud_def)
-    -- TODO: determine if the player actually has mana and if their hud should be displayed
-    return hud_def
+    local mana_max = player_stats:get_player_stat(player, "mana_max")
+
+    if mana_max > 0 then
+      return hud_def
+    end
+
+    return nil
   end)
 end
