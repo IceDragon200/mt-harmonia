@@ -77,12 +77,11 @@ function ic:update_players(players, dt, assigns)
   local player_assigns
   local element_gen_time
   local element_regen
-  local meta
+  local element_degen
   local element
   local element_max
 
   for player_name, player in pairs(players) do
-    meta = player:get_meta()
     player_assigns = assigns[player_name]
 
     element_max = player_stats:get_player_stat(player, "element_max")
