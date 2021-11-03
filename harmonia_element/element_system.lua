@@ -72,9 +72,10 @@ function ic:get_player_element_blueprints(player_name)
   return nil
 end
 
+-- @spec #update_players({ [player_name: String]: Player }, dt: Float, Table): void
 function ic:update_players(players, dt, assigns)
   local player_assigns
-  local element_regen_time
+  local element_gen_time
   local element_regen
   local meta
   local element
@@ -84,26 +85,44 @@ function ic:update_players(players, dt, assigns)
     meta = player:get_meta()
     player_assigns = assigns[player_name]
 
-    element_regen_time = player_assigns["element_regen_time"] or 0
-    element_regen_time = element_regen_time + dt
+    element_max = player_stats:get_player_stat(player, "element_max")
+    element = player_stats:get_player_stat(player, "element")
+    element_regen = player_stats:get_player_stat(player, "element_regen")
+    element_degen = player_stats:get_player_stat(player, "element_degen")
 
-    if element_regen_time > 1 then
-      element_regen_time = element_regen_time - 1
+    -- element *gen
+    element_gen_time = player_assigns["element_gen_time"] or 0
+    element_gen_time = element_gen_time + dt
 
-      element_regen = player_stats:get_player_stat(player, "element_regen")
+    if element_gen_time > 1 then
+      element_gen_time = element_gen_time - 1
 
       if element_regen > 0 then
-        element_max = player_stats:get_player_stat(player, "element_max")
-        element = meta:get_int("element")
-        -- this allows element to overflow
+        -- element is allowed to overflow
         if element < element_max then
-          -- but if it's under it will cap it at the maximum
+          -- but if it's under the max, it will cap it instead
           element = math.min(element + element_regen, element_max)
         end
       end
+
+      if element_degen > 0 then
+        -- only try degen if the element is greater than zero
+        if element > 0 then
+          element = math.max(element - element_degen, 0)
+        end
+      end
+
+      if element > element_max then
+        -- handle element overflow
+        if element > 0 then
+          element = math.max(element - math.floor(element_max / element), 0)
+        end
+      end
+
+      player_stats:set_player_stat(player, "element", element)
     end
 
-    player_assigns["element_regen_time"] = element_regen_time
+    player_assigns["element_gen_time"] = element_gen_time
   end
 end
 
