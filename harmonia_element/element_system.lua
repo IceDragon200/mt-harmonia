@@ -21,10 +21,13 @@ end
 --         value: Boolean | nil
 --       ): Boolean
 function ic:toggle_player_element_blueprint(player_name, blueprint_id, value)
-  return player_data_service:with_player_domain_kv(player_name, self.m_data_domain, function (kv_store)
-    kv_store:put(blueprint_id, value)
-    return true
-  end)
+  if self.registered_element_blueprints[blueprint_id] then
+    return player_data_service:with_player_domain_kv(player_name, self.m_data_domain, function (kv_store)
+      kv_store:put(blueprint_id, value)
+      return true
+    end)
+  end
+  return false
 end
 
 -- Unlocks an element blueprint for a specific player.

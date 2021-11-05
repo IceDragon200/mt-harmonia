@@ -12,4 +12,6 @@ mod:require("element_system.lua")
 
 mod:require("api.lua")
 
+mod:require("chat_commands.lua")
+
 mod:require("items.lua")
