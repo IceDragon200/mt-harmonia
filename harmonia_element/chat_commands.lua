@@ -6,7 +6,7 @@ minetest.register_chatcommand("unlock_my_element_blueprint", {
 
   params = mod.S("<blueprint_id>"),
 
-  func = function (blueprint_id)
+  func = function (caller_name, blueprint_id)
     local player = player_service:get_player_by_name(caller_name)
 
     if player then
