@@ -218,7 +218,10 @@ end
 local nyctophobia_system = NyctophobiaSystem:new()
 
 minetest.register_on_mods_loaded(nyctophobia_system:method("init"))
-minetest.register_globalstep(nyctophobia_system:method("update"))
+nokore_proxy.register_globalstep(
+  "nyctophobia_system.update/1",
+  nyctophobia_system:method("update")
+)
 minetest.register_on_shutdown(nyctophobia_system:method("terminate"))
 
 harmonia_nyctophobia.nyctophobia_system = nyctophobia_system
