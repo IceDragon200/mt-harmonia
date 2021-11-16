@@ -10,19 +10,21 @@ local MAX_LOOT = BAG_SIZE
 
 -- @spec render_formspec(Player, Table): String
 local function render_formspec(user, assigns)
-  local v2 = nokore_player_inv.player_inventory_size2(user)
+  local inv_size = nokore_player_inv.player_inventory_size2(user)
   local cio = fspec.calc_inventory_offset
 
-  local cols = math.max(v2.x, BAG_SIZE)
+  local cols = math.max(inv_size.x, BAG_SIZE)
   local w = cio(cols)
   local tx = (w - cio(BAG_SIZE)) / 2
-  local px = (w - cio(v2.x)) / 2
+  local px = (w - cio(inv_size.x)) / 2
   local bag_rows = 1
+  local padding = 0.5
+  local form_size = fspec.calc_form_inventory_size(cols, 2 + inv_size.y)
 
   return fspec.formspec_version(4) ..
-         fspec.size(0.5 + w, 0.5 + cio(v2.y + 1)) ..
+         fspec.size(form_size.x + padding, form_size.y + padding) ..
          fspec.list("current_player", TEMP_LIST_NAME, 0.25 + tx, 0.25, BAG_SIZE, bag_rows) ..
-         nokore_player_inv.player_inventory_lists_fragment(user, 0.25 + px, 0.25 + cio(1)) ..
+         nokore_player_inv.player_inventory_lists_fragment(user, 0.25 + px, 0.25 + cio(2)) ..
          fspec.list_ring()
 end
 
@@ -39,7 +41,7 @@ local function initialize_treasure_bag(item_stack, _user, _pointed_thing)
   -- at least three items will be produced
   -- FIXME: this should be configurable
   local loot_count = MIN_LOOT + math.random(MAX_LOOT - MIN_LOOT)
-  local list = treasure.sample_treasures(treasure_list_name, loot_count)
+  local list = treasure:sample_treasures(treasure_list_name, loot_count)
   local blob = InventoryPacker.ascii_pack_list(list)
 
   local new_item_stack = ItemStack(item_stack)
@@ -56,8 +58,7 @@ end
 --
 -- @spec handle_bag_on_quit(Player, String, Table, Table): void
 local function handle_bag_on_quit(player, form_name, fields, assigns)
-  local player_meta = player:get_meta()
-  local inv = player_meta:get_inventory()
+  local inv = player:get_inventory()
   local list = inv:get_list(TEMP_LIST_NAME)
   local blob = InventoryPacker.ascii_pack_list(list)
 
@@ -65,7 +66,7 @@ local function handle_bag_on_quit(player, form_name, fields, assigns)
   local meta = item_stack:get_meta()
   meta:set_string("inv_blob", blob)
 
-  local leftover = inv:add_stack("main", item_stack)
+  local leftover = inv:add_item("main", item_stack)
 
   if not leftover:is_empty() then
     minetest.spawn_item(player:get_pos(), leftover)
@@ -84,8 +85,7 @@ local function on_open_bag(item_stack, user, pointed_thing)
   -- if something happens while the player is looking in the bag we can't account
   -- for the changes made either.
   -- So instead, we'll open the treasure on the player as a hidden inventory
-  local player_meta = user:get_meta()
-  local inv = player_meta:get_inventory()
+  local inv = user:get_inventory()
 
   -- FIXME: treasure bag size should be configurable
   inv:set_size(TEMP_LIST_NAME, BAG_SIZE)
@@ -126,7 +126,7 @@ minetest.register_tool("harmonia_treasure:bag", {
 
   inventory_image = "harmonia_treasure_bags_open.png",
 
-  on_place = on_open_bag,
+  on_use = on_open_bag,
 })
 
 -- When a treasure bag is used, it opens a formspec with some goodies inside, allowing the player
@@ -138,5 +138,5 @@ minetest.register_tool("harmonia_treasure:treasure_bag", {
 
   inventory_image = "harmonia_treasure_bags_close.png",
 
-  on_place = on_open_treasure_bag,
+  on_use = on_open_treasure_bag,
 })
