@@ -5,4 +5,6 @@
 --
 local mod = foundation.new_module("harmonia_treasure", "0.1.0")
 
-mod:require("items/treasure_bag.lua")
+mod:require("api.lua")
+
+mod:require("items.lua")
