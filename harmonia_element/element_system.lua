@@ -1,14 +1,19 @@
+-- @namespace harmonia_element
+
 local player_data_service = assert(nokore.player_data_service)
 local player_stats = assert(nokore.player_stats)
 
+-- @class ElementSystem
 local ElementSystem = foundation.com.Class:extends("harmonia_element.ElementSystem")
 local ic = ElementSystem.instance_class
+
+-- @type ItemName: String
 
 -- @spec #initialize(): void
 function ic:initialize(data_domain)
   self.m_data_domain = data_domain
-  -- @type registered_element_blueprints: {
-  --   [blueprint_id: String]: (item_name: String)
+  -- @member registered_element_blueprints: {
+  --   [blueprint_id: String]: ItemName
   -- }
   self.registered_element_blueprints = {}
 end
