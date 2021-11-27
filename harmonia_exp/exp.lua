@@ -7,6 +7,10 @@
 --
 -- Note this system ONLY handles experience, not levels or the like.
 --
+
+-- @namespace harmonia_exp
+
+-- @class ExpSystem
 local ExpSystem = foundation.com.Class:extends("ExpSystem")
 local ic = assert(ExpSystem.instance_class)
 
@@ -155,12 +159,16 @@ function ic:_set_exp_function(entity)
   end
 end
 
--- @type Reason :: {
---   origin = String,
---   params = Table, -- user specified params
---   -- below values are set by increase/decrease exp
---   old_exp = integer, -- the exp the user had before increase/decrease
---   exp = integer, -- the exp the user will have after increase/decrease
+-- Reason Fields:
+-- * `params` - user specified params
+-- * `old_exp` - below values are set by increase/decrease exp.
+--               the exp the user had before increase/decrease
+-- * `exp` - the exp the user will have after increase/decrease
+-- @type Reason: {
+--   origin: String,
+--   params: Table,
+--   old_exp: integer,
+--   exp: integer,
 -- }
 --
 -- @spec set_exp(Entity, exp_type: String, Integer, Reason) :: (Boolean, Error)

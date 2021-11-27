@@ -1,6 +1,12 @@
-local NyctophobiaSystem = foundation.com.Class:extends("NyctophobiaSystem")
+-- @namespace harmonia_nyctophobia
+
+-- @type MultiplierCallback :: (player: Player, scale: Float, delta: Float) => (scale: Float)
+
+-- @class NyctophobiaSystem
+local NyctophobiaSystem = foundation.com.Class:extends("harmonia_nyctophobia.NyctophobiaSystem")
 local ic = NyctophobiaSystem.instance_class
 
+-- @spec #initialize(): void
 function ic:initialize()
   --
   self.elapsed = 0
@@ -14,8 +20,7 @@ end
 -- This callback is called when nyctophobia needs to calculate the scale/multiplier
 -- for the nyctophobia effect, particularly it's duration calculations
 --
--- @type MultiplierCallback :: (player: Player, scale: Float, delta: Float) => (scale: Float)
--- @spec register_multiplier(name: String, MultiplierCallback) :: void
+-- @spec #register_multiplier(name: String, MultiplierCallback) :: void
 function ic:register_multiplier(name, callback)
   if self.multiplier_callbacks[name] then
     error("multiplier callback is already registered name=" .. name)
@@ -24,7 +29,7 @@ function ic:register_multiplier(name, callback)
   self.multiplier_callbacks[name] = callback
 end
 
--- @spec unregister_multiplier(name: String) :: void
+-- @spec #unregister_multiplier(name: String) :: void
 function ic:unregister_multiplier(name)
   self.multiplier_callbacks[name] = nil
 end
@@ -215,6 +220,7 @@ function ic:_perform_step_on_player(player, delta)
   end
 end
 
+harmonia_nyctophobia.NyctophobiaSystem = NyctophobiaSystem
 local nyctophobia_system = NyctophobiaSystem:new()
 
 minetest.register_on_mods_loaded(nyctophobia_system:method("init"))

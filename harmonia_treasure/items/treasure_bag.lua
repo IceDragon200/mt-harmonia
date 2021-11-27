@@ -8,7 +8,7 @@ local BAG_SIZE = 10
 local MIN_LOOT = 3
 local MAX_LOOT = BAG_SIZE
 
--- @spec render_formspec(Player, Table): String
+-- @private.spec render_formspec(Player, Table): String
 local function render_formspec(user, assigns)
   local inv_size = nokore_player_inv.player_inventory_size2(user)
   local cio = fspec.calc_inventory_offset
@@ -31,7 +31,7 @@ end
 -- Callback when a treasure is opened, this will initialize the inventory
 -- and fill it with treasure, the bag can have a specific list name to initialize from.
 --
--- @spec initialize_treasure_bag(ItemStack, Player, PointedThing): void
+-- @private.spec initialize_treasure_bag(ItemStack, Player, PointedThing): void
 local function initialize_treasure_bag(item_stack, _user, _pointed_thing)
   local meta = item_stack:get_meta()
 
@@ -56,7 +56,7 @@ end
 -- It performs the necessary cleanup and moving the inventory blob back unto
 -- the bag.
 --
--- @spec handle_bag_on_quit(Player, String, Table, Table): void
+-- @private.spec handle_bag_on_quit(Player, String, Table, Table): void
 local function handle_bag_on_quit(player, form_name, fields, assigns)
   local inv = player:get_inventory()
   local list = inv:get_list(TEMP_LIST_NAME)
@@ -77,7 +77,7 @@ local function handle_bag_on_quit(player, form_name, fields, assigns)
   inv:set_size(TEMP_LIST_NAME, 0)
 end
 
--- @spec on_open_bag(ItemStack, Player, PointedThing): ItemStack
+-- @private.spec on_open_bag(ItemStack, Player, PointedThing): ItemStack
 local function on_open_bag(item_stack, user, pointed_thing)
   local meta = item_stack:get_meta()
   local blob = meta:get_string("inv_blob")
@@ -113,7 +113,7 @@ local function on_open_bag(item_stack, user, pointed_thing)
   return ItemStack()
 end
 
--- @spec on_open_treasure_bag(ItemStack, Player, PointedThing): ItemStack
+-- @private.spec on_open_treasure_bag(ItemStack, Player, PointedThing): ItemStack
 local function on_open_treasure_bag(item_stack, user, pointed_thing)
   local new_item_stack = initialize_treasure_bag(item_stack, user, pointed_thing)
 
