@@ -1,5 +1,5 @@
 -- @namespace harmonia
-harmonia = rawget(_G, "harmonia")
+harmonia = rawget(_G, "harmonia") or {}
 
 -- Creates a treasure bag given a treasure_list_name, if none is given it will
 -- default to "treasure_bag"
