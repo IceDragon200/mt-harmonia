@@ -28,6 +28,7 @@ local function register_element_blueprint(blueprint_id, name)
 end
 
 local function backfill_element_blueprint_ids()
+  minetest.log("info", "backfilling items with element_blueprint_id")
   for name, item in pairs(minetest.registered_items) do
     if name ~= "air" and name ~= "" then
       if item.element_blueprint_id == nil then
