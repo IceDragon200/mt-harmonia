@@ -3,6 +3,9 @@
 local player_data_service = assert(nokore.player_data_service)
 local player_stats = assert(nokore.player_stats)
 
+local get_player_stat = player_stats.get_player_stat
+local set_player_stat = player_stats.set_player_stat
+
 -- @class ElementSystem
 local ElementSystem = foundation.com.Class:extends("harmonia_element.ElementSystem")
 local ic = ElementSystem.instance_class
@@ -80,8 +83,13 @@ function ic:get_player_element_blueprints(player_name)
   return nil
 end
 
--- @spec #update_players({ [player_name: String]: Player }, dt: Float, Table): void
-function ic:update_players(players, dt, assigns)
+-- @spec #update_players(
+--   { [player_name: String]: Player },
+--   dt: Float,
+--   assigns: Table,
+--   trace: Trace
+-- ): void
+function ic:update_players(players, dt, assigns, trace)
   local player_assigns
   local element_gen_time
   local element_regen
@@ -92,10 +100,10 @@ function ic:update_players(players, dt, assigns)
   for player_name, player in pairs(players) do
     player_assigns = assigns[player_name]
 
-    element_max = player_stats:get_player_stat(player, "element_max")
-    element = player_stats:get_player_stat(player, "element")
-    element_regen = player_stats:get_player_stat(player, "element_regen")
-    element_degen = player_stats:get_player_stat(player, "element_degen")
+    element_max = get_player_stat(player_stats, player, "element_max")
+    element = get_player_stat(player_stats, player, "element")
+    element_regen = get_player_stat(player_stats, player, "element_regen")
+    element_degen = get_player_stat(player_stats, player, "element_degen")
 
     -- element *gen
     element_gen_time = player_assigns["element_gen_time"] or 0
@@ -126,7 +134,7 @@ function ic:update_players(players, dt, assigns)
         end
       end
 
-      player_stats:set_player_stat(player, "element", element)
+      set_player_stat(player_stats, player, "element", element)
     end
 
     player_assigns["element_gen_time"] = element_gen_time
