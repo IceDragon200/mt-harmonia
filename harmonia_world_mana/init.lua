@@ -19,8 +19,8 @@ local elapsed = 0
 nokore_proxy.register_globalstep("hamornia_world_mana.update/1", function (delta)
   elapsed = elapsed + delta
 
-  if elapsed > 1 do
-    elapsed = elapsed - 1
+  if elapsed > 0.1 then
+    elapsed = elapsed - 0.1
 
     local mana
     local kv
