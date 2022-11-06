@@ -2,8 +2,8 @@ minetest.register_node("harmonia_pottery:clay_pot", {
   description = "Clay Pot",
 
   groups = {
-    cracky = 1,
-    oddly_breakable_by_hand = 1,
+    cracky = nokore.dig_class("wme"),
+    oddly_breakable_by_hand = nokore.dig_class("hand"),
   },
 
   paramtype = "light",
