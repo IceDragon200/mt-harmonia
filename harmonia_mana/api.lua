@@ -75,7 +75,7 @@ if rawget(_G, "nokore_player_hud") then
       x = 0.5,
       y = 1,
     },
-    text = "harmonia_mana_full.png",
+    text = "harmonia_mana2_full.png",
     text2 = "harmonia_mana_empty.png",
     number = 20,
     item = 20,
