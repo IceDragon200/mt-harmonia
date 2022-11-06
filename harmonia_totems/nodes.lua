@@ -12,7 +12,8 @@ minetest.register_node("harmonia_totems:dog_pillar", {
   description = "Dog Pillar",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     animal_totem = 1,
     has_nyctophobia_multiplier = 1,
   },
@@ -71,7 +72,8 @@ minetest.register_node("harmonia_totems:demented_pillar", {
   description = "Demented Pillar",
 
   groups = {
-    cracky = 1,
+    cracky = nokore.dig_class("copper"),
+    --
     demented_animal_totem = 1,
     has_nyctophobia_multiplier = 1,
   },
