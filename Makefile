@@ -4,14 +4,10 @@ RELEASE_DIR=${TMP_DIR}/harmonia
 luacheck:
 	luacheck .
 
-.PHONY: release
-release:
-	git archive --format tar --output "${BUILD_DIR}/harmonia.tar" master
-
 # Release step specifically when the modpack is under a game, this will copy
 # the modpack to the TMP_DIR
-.PHONY: release.game
-release.game:
+.PHONY: prepare.release
+prepare.release:
 	mkdir -p "${RELEASE_DIR}"
 
 	cp -r --parents harmonia_crystals "${RELEASE_DIR}"
