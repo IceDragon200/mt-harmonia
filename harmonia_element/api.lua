@@ -44,6 +44,7 @@ local function backfill_element_blueprint_ids()
       end
     end
   end
+  minetest.log("info", "backfilled items with element_blueprint_id")
 end
 
 minetest.register_on_mods_loaded(function ()
