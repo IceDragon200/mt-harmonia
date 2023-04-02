@@ -68,7 +68,9 @@ for variant_basename, variant_name in pairs(variants) do
 
     description = "Crystal Holder (" .. variant_name .. ")",
 
-    element = variant_basename,
+    harmonia = {
+      element = variant_basename,
+    },
 
     groups = {
       oddly_breakable_by_hand = 1,
