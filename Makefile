@@ -18,6 +18,7 @@ prepare.release:
 	cp -r --parents harmonia_nyctophobia "${RELEASE_DIR}"
 	cp -r --parents harmonia_passive "${RELEASE_DIR}"
 	cp -r --parents harmonia_pottery "${RELEASE_DIR}"
+	cp -r --parents harmonia_spirits "${RELEASE_DIR}"
 	cp -r --parents harmonia_totems "${RELEASE_DIR}"
 	cp -r --parents harmonia_treasure "${RELEASE_DIR}"
 	cp -r --parents harmonia_world_mana "${RELEASE_DIR}"
