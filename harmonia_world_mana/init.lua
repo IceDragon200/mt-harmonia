@@ -62,7 +62,7 @@ nokore_proxy.register_globalstep("hamornia_world_mana:update_blocks/1", function
 
           if other_block then
             other_kv = other_block.kv
-            other_mana = other_kv:get("mana")
+            other_mana = other_kv:get("mana", 0)
 
             -- we can overflow mana unless the target block has less mana
             -- than the donor
