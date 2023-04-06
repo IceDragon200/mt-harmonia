@@ -1,5 +1,5 @@
--- @namespace harmonia.element
-local mod = harmonia_element
+--- @namespace harmonia.element
+local mod = assert(harmonia_element)
 
 local DATA_DOMAIN = "element_blueprints"
 

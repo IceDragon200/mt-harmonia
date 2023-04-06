@@ -1,4 +1,4 @@
--- @namespace harmonia_element
+--- @namespace harmonia_element
 
 local player_data_service = assert(nokore.player_data_service)
 local player_stats = assert(nokore.player_stats)
@@ -6,13 +6,13 @@ local player_stats = assert(nokore.player_stats)
 local get_player_stat = player_stats.get_player_stat
 local set_player_stat = player_stats.set_player_stat
 
--- @class ElementSystem
+--- @class ElementSystem
 local ElementSystem = foundation.com.Class:extends("harmonia_element.ElementSystem")
 local ic = ElementSystem.instance_class
 
--- @type ItemName: String
+--- @type ItemName: String
 
--- @spec #initialize(): void
+--- @spec #initialize(): void
 function ic:initialize(data_domain)
   self.m_data_domain = data_domain
   -- @member registered_element_blueprints: {
@@ -21,13 +21,13 @@ function ic:initialize(data_domain)
   self.registered_element_blueprints = {}
 end
 
--- Toggles an element blueprint for a specific player
---
--- @spec #toggle_player_element_blueprint(
---         player_name: String,
---         blueprint_id: String,
---         value: Boolean | nil
---       ): Boolean
+--- Toggles an element blueprint for a specific player
+---
+--- @spec #toggle_player_element_blueprint(
+---         player_name: String,
+---         blueprint_id: String,
+---         value: Boolean | nil
+---       ): Boolean
 function ic:toggle_player_element_blueprint(player_name, blueprint_id, value)
   if self.registered_element_blueprints[blueprint_id] then
     return player_data_service:with_player_domain_kv(player_name, self.m_data_domain, function (kv_store)
@@ -38,25 +38,25 @@ function ic:toggle_player_element_blueprint(player_name, blueprint_id, value)
   return false
 end
 
--- Unlocks an element blueprint for a specific player.
--- Returns true if the blueprint was unlocked, false if inaccessible.
---
--- @spec #unlock_player_element_blueprint(player_name: String, blueprint_id: String): Boolean
+--- Unlocks an element blueprint for a specific player.
+--- Returns true if the blueprint was unlocked, false if inaccessible.
+---
+--- @spec #unlock_player_element_blueprint(player_name: String, blueprint_id: String): Boolean
 function ic:unlock_player_element_blueprint(player_name, blueprint_id)
   return self:toggle_player_element_blueprint(player_name, blueprint_id, true)
 end
 
--- Locks a player's blueprint.
--- Returns true if the blueprint was locked, false if inaccesible.
---
--- @spec #lock_player_element_blueprint(player_name: String, blueprint_id: String): Boolean
+--- Locks a player's blueprint.
+--- Returns true if the blueprint was locked, false if inaccesible.
+---
+--- @spec #lock_player_element_blueprint(player_name: String, blueprint_id: String): Boolean
 function ic:lock_player_element_blueprint(player_name, blueprint_id)
   return self:toggle_player_element_blueprint(player_name, blueprint_id, nil)
 end
 
--- Determines if a player has a specific blueprint.
---
--- @spec #player_has_element_blueprint(player_name: String, blueprint_id: String): Boolean
+--- Determines if a player has a specific blueprint.
+---
+--- @spec #player_has_element_blueprint(player_name: String, blueprint_id: String): Boolean
 function ic:player_has_element_blueprint(player_name, blueprint_id)
   local kv = player_data_service:get_player_domain_kv(player_name, self.m_data_domain)
 
@@ -67,12 +67,12 @@ function ic:player_has_element_blueprint(player_name, blueprint_id)
   return false
 end
 
--- Retrieves the blueprint unlock map for the specified player
--- Note that the table returned is the raw underlying key-value map.
--- Under no circumstance should the caller try to modify this table as it can
--- compromise the integrity of the key-value store.
---
--- @spec #get_player_element_blueprints(player_name: String): Table | nil
+--- Retrieves the blueprint unlock map for the specified player
+--- Note that the table returned is the raw underlying key-value map.
+--- Under no circumstance should the caller try to modify this table as it can
+--- compromise the integrity of the key-value store.
+---
+--- @spec #get_player_element_blueprints(player_name: String): Table | nil
 function ic:get_player_element_blueprints(player_name)
   local kv = player_data_service:get_player_domain_kv(player_name, self.m_data_domain)
 
@@ -83,12 +83,12 @@ function ic:get_player_element_blueprints(player_name)
   return nil
 end
 
--- @spec #update_players(
---   { [player_name: String]: Player },
---   dt: Float,
---   assigns: Table,
---   trace: Trace
--- ): void
+--- @spec #update_players(
+---   { [player_name: String]: Player },
+---   dt: Float,
+---   assigns: Table,
+---   trace: Trace
+--- ): void
 function ic:update_players(players, dt, assigns, trace)
   local player_assigns
   local element_gen_time
