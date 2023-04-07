@@ -6,7 +6,7 @@
 --   However a blueprint must be registered for the player to craft the item.
 --
 --
-local mod = foundation.new_module("harmonia_element", "0.1.0")
+local mod = foundation.new_module("harmonia_element", "0.2.0")
 
 mod:require("element_system.lua")
 
@@ -17,3 +17,7 @@ mod:require("chat_commands.lua")
 mod:require("items.lua")
 
 mod:require("stats.lua")
+
+if foundation.is_module_present("yatm_autotest") then
+  mod:require("autotest.lua")
+end
