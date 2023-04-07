@@ -4,26 +4,43 @@ harmonia.mana = harmonia.mana or {}
 local player_service = assert(nokore.player_service)
 local player_stats = assert(nokore.player_stats)
 
--- The Mana system's regen feature
+local function maybe_refresh_player_hud(player, player_assigns)
+  if nokore.player_hud then
+    local mana = player_assigns["last_mana"]
+    local mana_max = player_assigns["last_mana_max"]
+
+    if mana_max > 0 then
+      local amount = 20 * mana / mana_max
+      local max = 20
+
+      nokore.player_hud:upsert_player_hud_element(player, "mana", {
+        number = amount,
+        item = max,
+      })
+    else
+      nokore.player_hud:remove_player_hud_element(player, "mana")
+    end
+  end
+end
+
+-- The Mana system's update hook
 player_service:register_update(
   "harmonia_mana:update_players",
-  function (players, dt, player_assigns)
+  function (players, dt, players_assigns)
     local mana
     local mana_max
     local mana_regen
     local mana_degen
     local mana_gen_time
+    local player_assigns
 
     for player_name, player in pairs(players) do
+      player_assigns = players_assigns[player_name]
       mana_max = player_stats:get_player_stat(player, "mana_max")
       mana = player_stats:get_player_stat(player, "mana")
       mana_regen = player_stats:get_player_stat(player, "mana_regen")
       mana_degen = player_stats:get_player_stat(player, "mana_degen")
 
-      mana_gen_time = player_assigns["mana_gen_time"] or 0
-      mana_gen_time = mana_gen_time + dt
-
-      -- mana *gen
       mana_gen_time = player_assigns["mana_gen_time"] or 0
       mana_gen_time = mana_gen_time + dt
 
@@ -49,6 +66,13 @@ player_service:register_update(
       end
 
       player_assigns["mana_gen_time"] = mana_gen_time
+
+      if player_assigns["last_mana"] ~= mana or player_assigns["last_mana_max"] ~= mana_max then
+        player_assigns["last_mana"] = mana
+        player_assigns["last_mana_max"] = mana_max
+
+        maybe_refresh_player_hud(player, player_assigns)
+      end
     end
   end
 )
@@ -68,18 +92,18 @@ if rawget(_G, "hb") then
                      10, false)
 end
 
-if rawget(_G, "nokore_player_hud") then
+if foundation.is_module_present("nokore_player_hud") then
   nokore.player_hud:register_hud_element("mana", {
     hud_elem_type = "statbar",
     position = {
       x = 0.5,
       y = 1,
     },
-    text = "harmonia_mana2_full.png",
+    text = "harmonia_mana_full.png",
     text2 = "harmonia_mana_empty.png",
     number = 20,
     item = 20,
-    direction = 0,
+    direction = nokore.player_hud.DIRECTION_LEFT_RIGHT,
     size = {x = 24, y = 24},
     offset = {
       x = 24,
@@ -88,13 +112,17 @@ if rawget(_G, "nokore_player_hud") then
     },
   })
 
-  nokore.player_hud:register_on_init_player_hud_element("harmonia_mana:mana_init", "mana", function (player, _elem_name, hud_def)
-    local mana_max = player_stats:get_player_stat(player, "mana_max")
+  nokore.player_hud:register_on_init_player_hud_element(
+    "harmonia_mana:mana_init",
+    "mana",
+    function (player, _elem_name, hud_def)
+      local mana_max = player_stats:get_player_stat(player, "mana_max")
 
-    if mana_max > 0 then
-      return hud_def
+      if mana_max > 0 then
+        return hud_def
+      end
+
+      return nil
     end
-
-    return nil
-  end)
+  )
 end
