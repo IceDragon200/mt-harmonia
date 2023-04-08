@@ -8,6 +8,7 @@ local fspec = assert(foundation.com.formspec.api)
 local Groups = assert(foundation.com.Groups)
 local Cuboid = assert(foundation.com.Cuboid)
 local table_merge = assert(foundation.com.table_merge)
+local ItemInterface = assert(yatm.items.ItemInterface)
 
 local player_service = assert(nokore.player_service)
 local nb = assert(Cuboid.new_fast_node_box)
@@ -208,6 +209,22 @@ local function on_metadata_inventory_put(pos, _listname, _index, _item_stack, _p
   refresh_spirit_lantern(pos, node)
 end
 
+local item_interface = ItemInterface.new_simple("main")
+
+--- @spec #on_insert_item(Vector3, dir: Direction, item_stack: ItemStack): void
+function item_interface:on_insert_item(pos, dir, item_stack)
+  -- maybe_run_timer(pos)
+end
+
+--- @spec #allow_insert_item(Vector3, dir: Direction, item_stack: ItemStack): Boolean
+function item_interface:allow_insert_item(pos, dir, item_stack)
+  if mod.is_item_spirit(item_stack) then
+    return true
+  else
+    return false, "item is not a spirit"
+  end
+end
+
 local empty_node_box =
   {
     type = "fixed",
@@ -299,12 +316,16 @@ mod:register_node("spirit_lantern_core_empty", {
     harmonia_world_mana_consumer = 1,
     spirit_lantern_with_core = 1,
     spirit_lantern_with_core_empty = 1,
+    item_interface_out = 1,
+    item_interface_in = 1,
   }),
 
   harmonia = {
     max_mana = MAX_MANA,
     refresh_spirit_lantern = refresh_spirit_lantern,
   },
+
+  item_interface = item_interface,
 
   paramtype = "light",
   paramtype2 = "facedir",
@@ -356,6 +377,8 @@ for _i, entry in ipairs(ATTRS) do
       spirit_lantern_with_core = 1,
       spirit_lantern_with_core_spirit = 1,
       not_in_creative_inventory = 1,
+      item_interface_out = 1,
+      item_interface_in = 1,
     }),
 
     harmonia = {
@@ -363,6 +386,8 @@ for _i, entry in ipairs(ATTRS) do
       element = entry.basename,
       refresh_spirit_lantern = refresh_spirit_lantern,
     },
+
+    item_interface = item_interface,
 
     paramtype = "light",
     paramtype2 = "facedir",

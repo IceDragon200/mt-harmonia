@@ -45,8 +45,8 @@ for _i, entry in ipairs(ATTRS) do
     stack_max = 1,
 
     groups = {
-      spirit = 1,
-      ["spirit_" .. entry.basename] = 1,
+      harmonia_spirit = 1,
+      ["harmonia_spirit_" .. entry.basename] = 1,
     },
   })
 end
