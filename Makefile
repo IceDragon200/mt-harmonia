@@ -10,6 +10,7 @@ luacheck:
 prepare.release:
 	mkdir -p "${RELEASE_DIR}"
 
+	cp -r --parents harmonia_core "${RELEASE_DIR}"
 	cp -r --parents harmonia_crystals "${RELEASE_DIR}"
 	cp -r --parents harmonia_element "${RELEASE_DIR}"
 	cp -r --parents harmonia_exp "${RELEASE_DIR}"
