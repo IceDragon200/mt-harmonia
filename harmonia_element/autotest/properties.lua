@@ -12,6 +12,12 @@ mod.autotest_suite:define_property("test_element_crafting", {
 
     state.player = player
 
+    local player_name = state.player:get_player_name()
+
+    harmonia.element:clear_blueprint_crafting_queue(player_name)
+    local list = harmonia.element:all_blueprint_crafting_queue(player_name)
+    assert(#list == 0, "expected queue to be empty")
+
     local meta = state.player:get_meta()
     meta:set_int("element_max", 200)
     nokore.player_stats:set_player_stat(state.player, "element", 200)
@@ -26,15 +32,23 @@ mod.autotest_suite:define_property("test_element_crafting", {
       local blueprint_id = "hsw_materials:wme"
 
       assert(harmonia.element:add_blueprint_to_crafting_queue(player_name, blueprint_id))
-
       local list = harmonia.element:all_blueprint_crafting_queue(player_name)
+      suite:yield()
 
-      assert(#list == 1)
+      if #list > 0 then
+        if #list > 1 then
+          print(dump(list))
+          error("multiple blueprints present")
+        end
+      else
+        error("no blueprints present")
+      end
       assert(list[1] == "hsw_materials:wme")
 
       local overview = harmonia.element:get_blueprint_crafting_queue_overview(player_name)
+
       assert(overview)
-      assert(overview.state == harmonia_element.ElementSystem.State.NEW)
+      assert(overview.state == harmonia_element.ElementSystem.States.CRAFTING, "expected state to be crafting")
       assert(overview.current_item == "hsw_materials:wme")
       assert(overview.time > 0)
       assert(overview.time_max > 0)
