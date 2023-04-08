@@ -175,13 +175,13 @@ local function on_timer(pos, dt)
       local leftover
       leftover = math.max(corrupted_mana - mana_used, 0)
       mana_used = mana_used - corrupted_mana - leftover
-      meta:set_float("corrupted_mana", corrupted_mana)
+      meta:set_float("corrupted_mana", leftover)
     end
 
     if mana_used > 0 then
       local leftover = math.max(mana - mana_used, 0)
       mana_used = mana_used - mana - leftover
-      meta:set_float("mana", mana)
+      meta:set_float("mana", leftover)
     end
 
     -- always loop as long as there is a spirit
