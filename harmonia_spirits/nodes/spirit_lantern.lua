@@ -74,8 +74,8 @@ local ATTRS = {
 local function on_construct(pos)
   local meta = minetest.get_meta(pos)
 
-  meta:set_float("mana", 0)
-  meta:set_float("corrupted_mana", 0)
+  meta:set_int("mana", 0)
+  meta:set_int("corrupted_mana", 0)
 
   local inv = meta:get_inventory()
 
@@ -89,38 +89,29 @@ local function render_formspec(pos, player, state)
 
   local mana = meta:get_float("mana")
   local corrupted_mana = meta:get_float("corrupted_mana")
-
-  local mana_color = "#68959d"
-  local corrupted_mana_color = "#312c45"
+  local nodedef = minetest.registered_nodes[state.node.name]
+  local max_mana = assert(nodedef.harmonia.max_mana)
 
   local formspec = yatm.formspec_render_split_inv_panel(player, 4, 4, { bg = "default" }, function (loc, rect)
     if loc == "main_body" then
       return fspec.list("nodemeta:" .. spos, "main", rect.x, rect.y, 1, 1) ..
         -- Mana
-        yatm.formspec.render_gauge{
+        harmonia.formspec.render_mana_gauge{
           x = rect.x + cio(2),
           y = rect.y,
           w = 1,
           h = rect.h,
-          gauge_color = mana_color,
-          border_name = "yatm_item_border_percent.png",
           amount = mana,
-          max = MAX_MANA,
-          is_horz = false,
-          tooltip = "Mana " .. mana .. " / " .. MAX_MANA,
+          max = max_mana,
         } ..
         -- Corrupted Mana
-        yatm.formspec.render_gauge{
+        harmonia.formspec.render_corrupted_mana_gauge{
           x = rect.x + cio(3),
           y = rect.y,
           w = 1,
           h = rect.h,
-          gauge_color = corrupted_mana_color,
-          border_name = "yatm_item_border_percent.png",
           amount = corrupted_mana,
-          max = MAX_MANA,
-          is_horz = false,
-          tooltip = "Corrupted Mana " .. corrupted_mana .. " / " .. MAX_MANA,
+          max = max_mana,
         }
     elseif loc == "footer" then
       return fspec.list_ring()
@@ -133,7 +124,10 @@ end
 
 local function on_refresh_timer(player_name, form_name, state)
   local player = player_service:get_player_by_name(player_name)
+  local node = minetest.get_node(state.pos)
   local meta = minetest.get_meta(state.pos)
+
+  state.node = node
   state.time = meta:get_float("time")
 
   return {
@@ -267,6 +261,7 @@ mod:register_node("spirit_lantern_empty", {
   groups = table_merge(base_groups, {}),
 
   harmonia = {
+    max_mana = MAX_MANA,
     refresh_spirit_lantern = refresh_spirit_lantern,
   },
 
@@ -301,11 +296,13 @@ mod:register_node("spirit_lantern_core_empty", {
   codex_entry_id = mod:make_name("spirit_lantern_core_empty"),
 
   groups = table_merge(base_groups, {
+    harmonia_world_mana_consumer = 1,
     spirit_lantern_with_core = 1,
     spirit_lantern_with_core_empty = 1,
   }),
 
   harmonia = {
+    max_mana = MAX_MANA,
     refresh_spirit_lantern = refresh_spirit_lantern,
   },
 
@@ -355,12 +352,14 @@ for _i, entry in ipairs(ATTRS) do
     drop = mod:make_name("spirit_lantern_core_empty"),
 
     groups = table_merge(base_groups, {
+      harmonia_world_mana_consumer = 1,
       spirit_lantern_with_core = 1,
       spirit_lantern_with_core_spirit = 1,
       not_in_creative_inventory = 1,
     }),
 
     harmonia = {
+      max_mana = MAX_MANA,
       element = entry.basename,
       refresh_spirit_lantern = refresh_spirit_lantern,
     },
@@ -402,7 +401,7 @@ minetest.register_abm({
     "group:spirit_lantern_with_core",
   },
 
-  interval = 15,
+  interval = 10,
   chance = 1,
 
   action = function (pos, node)
@@ -414,38 +413,8 @@ minetest.register_abm({
 
     local max_mana = mana + corrupted_mana
 
-    local block_id = harmonia_world_mana.node_pos_to_block_id(pos)
-
-    if max_mana < MAX_MANA then
-      local mana_requestable = math.min(MAX_MANA - max_mana, 50)
-      local consumed = harmonia_world_mana.consume_corrupted_mana_in_block(
-        block_id,
-        mana_requestable
-      )
-
-      if consumed > 0 then
-        corrupted_mana = corrupted_mana + consumed
-
-        max_mana = mana + corrupted_mana
-      end
-    end
-
-    if max_mana < MAX_MANA then
-      local mana_requestable = math.min(MAX_MANA - max_mana, 50)
-      local consumed = harmonia_world_mana.consume_mana_in_block(
-        block_id,
-        mana_requestable
-      )
-
-      if consumed > 0 then
-        mana = mana + consumed
-
-        max_mana = mana + corrupted_mana
-      end
-    end
-
     if max_mana > MINIMUM_MANA_FOR_LURE then
-      local rand = math.random(MAX_MANA)
+      local rand = math.random(nodedef.harmonia.max_mana)
 
       local spirit_name
       local is_corrupted = false
