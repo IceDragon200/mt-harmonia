@@ -16,6 +16,7 @@ prepare.release:
 	cp -r --parents harmonia_exp "${RELEASE_DIR}"
 	cp -r --parents harmonia_mana "${RELEASE_DIR}"
 	cp -r --parents harmonia_materials "${RELEASE_DIR}"
+	cp -r --parents harmonia_mycology "${RELEASE_DIR}"
 	cp -r --parents harmonia_nyctophobia "${RELEASE_DIR}"
 	cp -r --parents harmonia_passive "${RELEASE_DIR}"
 	cp -r --parents harmonia_pottery "${RELEASE_DIR}"
