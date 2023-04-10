@@ -53,6 +53,23 @@ function harmonia_world_mana.consume_mana_in_block(block_id, amount)
   return 0
 end
 
+--- @spec add_mana_in_block(block_id: Integer, amount: Number): Number
+function harmonia_world_mana.add_mana_in_block(block_id, amount)
+  local block = block_data_service:get_block(block_id)
+
+  if block then
+    local mana = block.kv:get("mana", 0)
+
+    mana = mana + amount
+
+    block.kv:put("mana", mana)
+
+    return amount
+  end
+
+  return 0
+end
+
 --- @spec get_corrupted_mana_in_block(block_id: Integer): Number | nil
 function harmonia_world_mana.get_corrupted_mana_in_block(block_id)
   local block = block_data_service:get_block(block_id)
@@ -76,6 +93,23 @@ function harmonia_world_mana.consume_corrupted_mana_in_block(block_id, amount)
     block.kv:put("corrupted_mana", leftover)
 
     return mana - leftover
+  end
+
+  return 0
+end
+
+--- @spec add_corrupted_mana_in_block(block_id: Integer, amount: Number): Number
+function harmonia_world_mana.add_corrupted_mana_in_block(block_id, amount)
+  local block = block_data_service:get_block(block_id)
+
+  if block then
+    local mana = block.kv:get("mana", 0)
+
+    mana = mana + amount
+
+    block.kv:put("mana", mana)
+
+    return amount
   end
 
   return 0
