@@ -39,7 +39,9 @@ for variant_basename,variant_description in pairs(variants) do
       ["crystal_"..variant_basename] = 1
     },
 
-    element = variant_basename,
+    harmonia = {
+      attribute = variant_basename,
+    },
   })
 
   minetest.register_craftitem("harmonia_crystals:crystal_"..variant_basename, {
@@ -54,6 +56,8 @@ for variant_basename,variant_description in pairs(variants) do
       ["crystal_"..variant_basename] = 1
     },
 
-    element = variant_basename,
+    harmonia = {
+      attribute = variant_basename,
+    },
   })
 end

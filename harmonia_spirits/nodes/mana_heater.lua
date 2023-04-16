@@ -1,6 +1,11 @@
 local mod = assert(harmonia_spirits)
 
-local cluster_thermal = yatm.cluster.thermal
+local cluster_thermal
+if rawget(_G, "yatm") then
+  if yatm and yatm.cluster then
+    cluster_thermal = yatm.cluster.thermal
+  end
+end
 
 if not cluster_thermal then
   minetest.log("warning", "cluster thermal not available skipping mana heater")

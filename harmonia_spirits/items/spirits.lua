@@ -1,6 +1,6 @@
 local mod = assert(harmonia_spirits)
 
-local ATTRS = {
+local ATTRIBUTES = {
   {
     basename = "corrupted",
     description = "Corrupted",
@@ -31,14 +31,14 @@ local ATTRS = {
   },
 }
 
-for _i, entry in ipairs(ATTRS) do
+for _i, entry in ipairs(ATTRIBUTES) do
   mod:register_craftitem("spirit_" .. entry.basename, {
     description = mod.S(entry.description .. " Spirit"),
 
     inventory_image = "harmonia_spirits_" .. entry.basename .. ".png",
 
     harmonia = {
-      element = entry.basename,
+      attribute = entry.basename,
     },
 
     -- Spirits are always unique

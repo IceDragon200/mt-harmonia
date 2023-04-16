@@ -69,7 +69,7 @@ for variant_basename, variant_name in pairs(variants) do
     description = "Crystal Holder (" .. variant_name .. ")",
 
     harmonia = {
-      element = variant_basename,
+      attribute = variant_basename,
     },
 
     groups = {

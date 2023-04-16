@@ -14,7 +14,7 @@ Spirits come from the Primordial Will which itself is a collection of spirits.
 
 Spirits are just fancy materials for creating sentient entities such as maidroids (the hsw version).
 
-They can have vary attributes allowing players to pick and choose which spirit works well for their requirements.
+They can have varying attributes allowing players to pick and choose which spirit works well for their requirements.
 
 ## How does one get a spirit?
 

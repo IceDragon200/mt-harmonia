@@ -8,7 +8,12 @@ local fspec = assert(foundation.com.formspec.api)
 local Groups = assert(foundation.com.Groups)
 local Cuboid = assert(foundation.com.Cuboid)
 local table_merge = assert(foundation.com.table_merge)
-local ItemInterface = assert(yatm.items.ItemInterface)
+local ItemInterface
+if rawget(_G, "yatm") then
+  if yatm and yatm.items then
+    ItemInterface = yatm.items.ItemInterface
+  end
+end
 
 local player_service = assert(nokore.player_service)
 local nb = assert(Cuboid.new_fast_node_box)
@@ -19,7 +24,7 @@ local MINIMUM_MANA_FOR_LURE = 100
 -- (note this is shared between corrupted and clean mana)
 local MAX_MANA = 300
 
-local ELEMENT_TO_LANTERN = {
+local ATTRIBUTE_TO_LANTERN = {
   corrupted = mod:make_name("spirit_lantern_core_corrupted"),
   ignis = mod:make_name("spirit_lantern_core_ignis"),
   aqua = mod:make_name("spirit_lantern_core_aqua"),
@@ -140,13 +145,13 @@ local function on_refresh_timer(player_name, form_name, state)
 end
 
 local function on_rightclick(pos, node, player, _itemstack, _pointed_thing)
-  local assigns = {
+  local state = {
     pos = pos,
     node = node,
   }
 
   local options = {
-    state = assigns,
+    state = state,
     timers = {
       -- routinely update the formspec
       refresh = {
@@ -159,13 +164,17 @@ local function on_rightclick(pos, node, player, _itemstack, _pointed_thing)
   nokore.formspec_bindings:show_formspec(
     player:get_player_name(),
     mod:make_name("spirit_lantern"),
-    render_formspec(pos, player),
+    render_formspec(pos, player, state),
     options
   )
 end
 
---- @private.spec refresh_spirit_lantern(pos: Vector3, node: NodeRef): void
-local function refresh_spirit_lantern(pos, node)
+--- @private.spec refresh_spirit_lantern(pos: Vector3, node: NodeRef, reason: Any): void
+local function refresh_spirit_lantern(pos, node, _reason)
+  if not node then
+    return
+  end
+
   local meta = minetest.get_meta(pos)
 
   local inv = meta:get_inventory()
@@ -176,12 +185,10 @@ local function refresh_spirit_lantern(pos, node)
   if stack and not stack:is_empty() then
     local itemdef = stack:get_definition()
 
-    if Groups.has_group(itemdef, "spirit") then
-      if itemdef.harmonia then
-        local lantern_name = ELEMENT_TO_LANTERN[itemdef.harmonia.element]
-        if lantern_name then
-          new_name = lantern_name
-        end
+    if itemdef and Groups.has_group(itemdef, "harmonia_spirit") and itemdef.harmonia then
+      local lantern_name = ATTRIBUTE_TO_LANTERN[itemdef.harmonia.attribute]
+      if lantern_name then
+        new_name = lantern_name
       end
     end
   else
@@ -197,31 +204,47 @@ local function refresh_spirit_lantern(pos, node)
   end
 end
 
-local function on_metadata_inventory_take(pos, _listname, _index, _item_stack, _player)
+local function on_metadata_inventory_take(pos, listname, _index, _item_stack, _player)
   local node = minetest.get_node_or_nil(pos)
 
-  refresh_spirit_lantern(pos, node)
+  if listname == "main" then
+    refresh_spirit_lantern(pos, node, "on_metadata_inventory_take")
+  end
 end
 
-local function on_metadata_inventory_put(pos, _listname, _index, _item_stack, _player)
+local function on_metadata_inventory_put(pos, listname, _index, _item_stack, _player)
   local node = minetest.get_node_or_nil(pos)
 
-  refresh_spirit_lantern(pos, node)
+  if listname == "main" then
+    refresh_spirit_lantern(pos, node, "on_metadata_inventory_put")
+  end
 end
 
-local item_interface = ItemInterface.new_simple("main")
+local item_interface
+if ItemInterface then
+  item_interface = ItemInterface.new_simple("main")
 
---- @spec #on_insert_item(Vector3, dir: Direction, item_stack: ItemStack): void
-function item_interface:on_insert_item(pos, dir, item_stack)
-  -- maybe_run_timer(pos)
-end
+  --- @spec #on_insert_item(Vector3, dir: Direction, item_stack: ItemStack): void
+  function item_interface:on_insert_item(pos, dir, item_stack)
+    local node = minetest.get_node_or_nil(pos)
 
---- @spec #allow_insert_item(Vector3, dir: Direction, item_stack: ItemStack): Boolean
-function item_interface:allow_insert_item(pos, dir, item_stack)
-  if mod.is_item_spirit(item_stack) then
-    return true
-  else
-    return false, "item is not a spirit"
+    refresh_spirit_lantern(pos, node, "item_interface:on_insert_item")
+  end
+
+  --- @spec #on_extract_item(Vector3, dir: Direction, item_stack_or_count: ItemStack | Integer): void
+  function item_interface:on_extract_item(pos, dir, item_stack_or_count)
+    local node = minetest.get_node_or_nil(pos)
+
+    refresh_spirit_lantern(pos, node, "item_interface:on_extract_item")
+  end
+
+  --- @spec #allow_insert_item(Vector3, dir: Direction, item_stack: ItemStack): Boolean
+  function item_interface:allow_insert_item(pos, dir, item_stack)
+    if mod.is_item_spirit(item_stack) then
+      return true
+    else
+      return false, "item is not a spirit"
+    end
   end
 end
 
@@ -279,7 +302,7 @@ mod:register_node("spirit_lantern_empty", {
 
   harmonia = {
     max_mana = MAX_MANA,
-    refresh_spirit_lantern = refresh_spirit_lantern,
+    refresh_spirit_lantern = assert(refresh_spirit_lantern),
   },
 
   paramtype = "light",
@@ -322,7 +345,7 @@ mod:register_node("spirit_lantern_core_empty", {
 
   harmonia = {
     max_mana = MAX_MANA,
-    refresh_spirit_lantern = refresh_spirit_lantern,
+    refresh_spirit_lantern = assert(refresh_spirit_lantern),
   },
 
   item_interface = item_interface,
@@ -383,8 +406,8 @@ for _i, entry in ipairs(ATTRS) do
 
     harmonia = {
       max_mana = MAX_MANA,
-      element = entry.basename,
-      refresh_spirit_lantern = refresh_spirit_lantern,
+      attribute = entry.basename,
+      refresh_spirit_lantern = assert(refresh_spirit_lantern),
     },
 
     item_interface = item_interface,
@@ -501,7 +524,7 @@ minetest.register_abm({
 
     if nodedef.harmonia then
       if nodedef.harmonia.refresh_spirit_lantern then
-        nodedef.harmonia.refresh_spirit_lantern(pos, node)
+        nodedef.harmonia.refresh_spirit_lantern(pos, node, "abm:spirit_lantern_luring")
       end
     end
   end,

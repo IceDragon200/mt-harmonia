@@ -29,7 +29,7 @@ mod.autotest_suite:define_property("is_mana_heater", {
 
   tests = {
     ["Has a right-click formspec"] = function (suite, state)
-      assert(trigger_rightclick_on_node(state.pos, state.player))
+      assert(trigger_rightclick_on_pos(state.pos, state.player))
     end,
 
     ["Can update a mana heater"] = function (suite, state)
