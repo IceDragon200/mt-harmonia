@@ -10,6 +10,7 @@ nokore.player_stats:register_stat("element", {
   set = function(_self, player, value)
     local meta = player:get_meta()
     meta:set_int("element", value)
+    return true
   end,
 })
 

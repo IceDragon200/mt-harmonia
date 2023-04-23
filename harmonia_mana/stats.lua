@@ -13,6 +13,7 @@ player_stats:register_stat("mana", {
     local meta = player:get_meta()
 
     meta:set_int("mana", value)
+    return true
   end
 })
 
