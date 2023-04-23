@@ -11,3 +11,14 @@ mod.weighted_spirits:push(mod:make_name("spirit_lux"), 10)
 mod.weighted_spirits:push(mod:make_name("spirit_terra"), 10)
 mod.weighted_spirits:push(mod:make_name("spirit_umbra"), 10)
 mod.weighted_spirits:push(mod:make_name("spirit_ventus"), 10)
+
+--
+-- Crafts
+--
+
+-- Fuel
+minetest.register_craft{
+  type = "fuel",
+  recipe = mod:make_name("infused_coal_lump_ignis"),
+  burntime = 60,
+}
