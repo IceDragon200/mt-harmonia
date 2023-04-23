@@ -14,6 +14,10 @@ mod:require("nodes.lua")
 
 mod:require("registration.lua")
 
+if foundation.is_module_present("yatm_codex") then
+  mod:require("codex.lua")
+end
+
 if foundation.is_module_present("yatm_autotest") then
   mod:require("autotest.lua")
 end
