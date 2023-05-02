@@ -1,18 +1,47 @@
-harmonia = rawget(_G, "harmonia") or {}
-harmonia.passive = harmonia.passive or {}
+--- @namespace harmonia_passive
+local mod = assert(harmonia_passive)
 
-local DATA_DOMAIN = "harmonia_passive"
-local passive_system = harmonia_passive.PassiveSystem:new(DATA_DOMAIN)
+mod.enabled_stat_modifiers = {}
 
-minetest.register_on_mods_loaded(passive_system:method("init"))
-minetest.register_on_shutdown(passive_system:method("terminate"))
-nokore.player_service:register_update(
-  "harmonia_passive:update_players",
-  passive_system:method("update_players")
-)
+--- Enables Player Stat Modifiers for specified stat with the passive system.
+--- By default passives will not affect any stats, but they can be enabled through this function.
+--- Note that this function will only register the same stat once.
+---
+--- @spec enable_stat_modifier(stat_name: String): void
+function mod.enable_stat_modifier(stat_name)
+  if mod.enabled_stat_modifiers[stat_name] then
+    return
+  end
 
-nokore.player_data_service:register_domain(DATA_DOMAIN, {
-  save_method = "marshall"
-})
+  mod.enabled_stat_modifiers[stat_name] = true
 
-harmonia.passive.system = passive_system
+  for _, modifier_name in ipairs({ "base", "add", "mul" }) do
+    local cbname = mod:make_name("mod_" .. stat_name .. "_" .. modifier_name)
+
+    nokore.player_stats:register_stat_modifier(stat_name, cbname, modifier_name, function (player, value)
+      local player_name = player:get_player_name()
+      local upgrades = hsw.nanosuit_upgrades:get_player_upgrade_states(player_name)
+
+      if upgrades then
+        local upgrade
+        local upgrade_stat
+
+        for upgrade_name, upgrade_state in pairs(upgrades) do
+          upgrade = hsw.nanosuit_upgrades.registered_upgrades[upgrade_name]
+          if upgrade then
+            if upgrade.stats then
+              upgrade_stat = upgrade.stats[stat_name]
+              if upgrade_stat then
+                if upgrade_stat[modifier_name] then
+                  value = upgrade_stat[modifier_name](upgrade, player, value)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      return value
+    end)
+  end
+end
