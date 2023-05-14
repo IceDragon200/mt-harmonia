@@ -151,7 +151,7 @@ local function on_timer(pos, dt)
 
   if mod.is_item_spirit(stack) then
     -- We have a spirit!
-    local element = mod.get_item_primary_element(stack)
+    local element = mod.get_item_primary_attribute(stack)
 
     --- 5 mana per second is consumed generally
     local mana_consumable = math.min(available_mana, dt * 5)
