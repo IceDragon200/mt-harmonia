@@ -1,5 +1,7 @@
 local mod = assert(harmonia_passive)
 
+local path_join = assert(foundation.com.path_join)
+
 local PlayerDataService = assert(nokore.PlayerDataService)
 local PassiveRegistry = assert(harmonia_passive.PassiveRegistry)
 
@@ -7,7 +9,10 @@ local subject = mod.PassiveSystem
 local case = foundation.com.Luna:new("harmonia_passive.PassiveSystem")
 
 case:setup_all(function (tags)
-  local pds = PlayerDataService:new()
+  local pds = PlayerDataService:new{
+    root_path = path_join(path_join(minetest.get_worldpath(), "nokore_test"), "players")
+  }
+
   tags.player_data_service = pds
   return tags
 end)
