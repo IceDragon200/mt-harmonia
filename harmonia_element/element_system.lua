@@ -1,42 +1,181 @@
 --- @namespace harmonia_element
 
-local player_data_service = assert(nokore.player_data_service)
-local player_stats = assert(nokore.player_stats)
-
-local get_player_stat = player_stats.get_player_stat
-local set_player_stat = player_stats.set_player_stat
-
 --- @class ElementSystem
 local ElementSystem = foundation.com.Class:extends("harmonia_element.ElementSystem")
 
---- @const CraftingErrors: { [String]: Integer }
+--- @type CraftError: Integer
+
+--- @const CraftingErrors: { [String]: CraftError }
 ElementSystem.CraftingErrors = {
   OK = 0,
   NOT_ENOUGH_ELEMENT = 1,
   NOT_ENOUGH_SPACE_FOR_ITEM = 2,
   BLUEPRINT_NOT_FOUND = 4,
+  PLAYER_NOT_FOUND = 5,
 }
 
---- @const States: { [String]: Integer }
+--- @type CraftState: Integer
+
+--- @const States: { [String]: CraftState }
 ElementSystem.States = {
   NEW = 0,
   CRAFTING = 1,
   OUTPUT = 2,
 }
 
+--- @type Blueprint: {
+---   id: String,
+---   name: String,
+---   cost: Integer,
+---   duration: Float,
+--- }
+
+--- @type CraftEvent: {
+---   type: String,
+---   player_name: String,
+---   player: PlayerRef,
+---   blueprint_id: String,
+---   blueprint: Blueprint,
+---   time: Float,
+---   time_max: Float,
+---   state: CraftState,
+---   craft_error: CraftError,
+--- }
+
 do
   local ic = ElementSystem.instance_class
 
   --- @type ItemName: String
 
-  --- @spec #initialize(): void
+  --- @type CraftEventCallback: (CraftEvent) => void
+
+  --- @spec #initialize(options: Table): void
   function ic:initialize(options)
+    self.m_player_data_service = assert(options.player_data_service)
+    self.m_player_stats = assert(options.player_stats)
     self.m_blueprint_data_domain = assert(options.blueprint_data_domain)
     self.m_crafting_data_domain = assert(options.crafting_data_domain)
-    -- @member registered_element_blueprints: {
-    --   [blueprint_id: String]: ItemName
-    -- }
+
+    --- @member registered_on_craft_started: {
+    ---   [name: String]: CraftEventCallback
+    --- }
+    self.registered_on_craft_started = {}
+
+    --- @member registered_on_craft_crafting: {
+    ---   [name: String]: CraftEventCallback
+    --- }
+    self.registered_on_craft_crafting = {}
+
+    --- @member registered_on_craft_error: {
+    ---   [name: String]: CraftEventCallback
+    --- }
+    self.registered_on_craft_error = {}
+
+    --- @member registered_on_craft_completed: {
+    ---   [name: String]: CraftEventCallback
+    --- }
+    self.registered_on_craft_completed = {}
+
+    --- @member registered_element_blueprints: {
+    ---   [blueprint_id: String]: Blueprint
+    --- }
     self.registered_element_blueprints = {}
+  end
+
+  --- @spec #register_on_craft_started(name: String, callback: CraftEventCallback): Boolean
+  function ic:register_on_craft_started(name, callback)
+    if self.registered_on_craft_started[name] then
+      error("cannot register on_craft_started callback name=" .. name)
+    end
+
+    self.registered_on_craft_started[name] = callback
+
+    return true
+  end
+
+  --- @spec #unregister_on_craft_started(name: String): Boolean
+  function ic:unregister_on_craft_started(name)
+    self.registered_on_craft_started[name] = nil
+    return true
+  end
+
+  --- @spec #register_on_craft_crafting(name: String, callback: CraftEventCallback): Boolean
+  function ic:register_on_craft_crafting(name, callback)
+    if self.registered_on_craft_crafting[name] then
+      error("cannot register on_craft_crafting callback name=" .. name)
+    end
+
+    self.registered_on_craft_crafting[name] = callback
+
+    return true
+  end
+
+  --- @spec #unregister_on_craft_crafting(name: String): Boolean
+  function ic:unregister_on_craft_crafting(name)
+    self.registered_on_craft_crafting[name] = nil
+    return true
+  end
+
+  --- @spec #register_on_craft_error(name: String, callback: CraftEventCallback): Boolean
+  function ic:register_on_craft_error(name, callback)
+    if self.registered_on_craft_error[name] then
+      error("cannot register on_craft_error callback name=" .. name)
+    end
+
+    self.registered_on_craft_error[name] = callback
+
+    return true
+  end
+
+  --- @spec #unregister_on_craft_error(name: String): Boolean
+  function ic:unregister_on_craft_error(name)
+    self.registered_on_craft_error[name] = nil
+    return true
+  end
+
+  --- @spec #register_on_craft_completed(name: String, callback: CraftEventCallback): Boolean
+  function ic:register_on_craft_completed(name, callback)
+    if self.registered_on_craft_completed[name] then
+      error("cannot register on_craft_completed callback name=" .. name)
+    end
+
+    self.registered_on_craft_completed[name] = callback
+
+    return true
+  end
+
+  --- @spec #unregister_on_craft_completed(name: String): Boolean
+  function ic:unregister_on_craft_completed(name)
+    self.registered_on_craft_completed[name] = nil
+    return true
+  end
+
+  --- @spec #trigger_on_craft_started(event: CraftEvent): void
+  function ic:trigger_on_craft_started(event)
+    for _name, callback in pairs(self.registered_on_craft_started) do
+      callback(event)
+    end
+  end
+
+  --- @spec #trigger_on_craft_crafting(event: CraftEvent): void
+  function ic:trigger_on_craft_crafting(event)
+    for _name, callback in pairs(self.registered_on_craft_crafting) do
+      callback(event)
+    end
+  end
+
+  --- @spec #trigger_on_craft_error(event: CraftEvent): void
+  function ic:trigger_on_craft_error(event)
+    for _name, callback in pairs(self.registered_on_craft_error) do
+      callback(event)
+    end
+  end
+
+  --- @spec #trigger_on_craft_completed(event: CraftEvent): void
+  function ic:trigger_on_craft_completed(event)
+    for _name, callback in pairs(self.registered_on_craft_completed) do
+      callback(event)
+    end
   end
 
   --- Toggles an element blueprint for a specific player
@@ -48,7 +187,7 @@ do
   ---       ): Boolean
   function ic:toggle_player_element_blueprint(player_name, blueprint_id, value)
     if self.registered_element_blueprints[blueprint_id] then
-      return player_data_service:with_player_domain_kv(
+      return self.m_player_data_service:with_player_domain_kv(
         player_name,
         self.m_blueprint_data_domain,
         function (kv_store)
@@ -80,7 +219,7 @@ do
   ---
   --- @spec #player_has_element_blueprint(player_name: String, blueprint_id: String): Boolean
   function ic:player_has_element_blueprint(player_name, blueprint_id)
-    local kv = player_data_service:get_player_domain_kv(player_name, self.m_blueprint_data_domain)
+    local kv = self.m_player_data_service:get_player_domain_kv(player_name, self.m_blueprint_data_domain)
 
     if kv then
       return kv:get(blueprint_id) == true
@@ -98,7 +237,7 @@ do
   ---   player_name: String
   --- ): { [element_blueprint_id: String]: Boolean } | nil
   function ic:get_player_element_blueprints(player_name)
-    local kv = player_data_service:get_player_domain_kv(player_name, self.m_blueprint_data_domain)
+    local kv = self.m_player_data_service:get_player_domain_kv(player_name, self.m_blueprint_data_domain)
 
     if kv then
       return kv.data
@@ -109,7 +248,7 @@ do
 
   --- @spec #get_player_element_crafting_kv(player_name: String): nokore.KeyValueStore
   function ic:get_player_element_crafting_kv(player_name)
-    local kv = player_data_service:get_player_domain_kv(player_name, self.m_crafting_data_domain)
+    local kv = self.m_player_data_service:get_player_domain_kv(player_name, self.m_crafting_data_domain)
 
     if kv then
       return kv
@@ -123,10 +262,12 @@ do
     --
     -- element regeneration
     --
-    local element_max = get_player_stat(player_stats, player, "element_max")
-    local element = get_player_stat(player_stats, player, "element")
-    local element_regen = get_player_stat(player_stats, player, "element_regen")
-    local element_degen = get_player_stat(player_stats, player, "element_degen")
+    local player_stats = self.m_player_stats
+
+    local element_max = player_stats:get_player_stat(player, "element_max")
+    local element = player_stats:get_player_stat(player, "element")
+    local element_regen = player_stats:get_player_stat(player, "element_regen")
+    local element_degen = player_stats:get_player_stat(player, "element_degen")
 
     -- element *gen
     local element_gen_time = assigns["element_gen_time"] or 0
@@ -153,17 +294,17 @@ do
       if element > element_max then
         -- handle element overflow
         if element > 0 then
-          element = math.max(element - math.floor(element_max / element), 0)
+          element = math.max(element - math.floor(element / element_max), 0)
         end
       end
 
-      set_player_stat(player_stats, player, "element", element)
+      player_stats:set_player_stat(player, "element", element)
     end
 
     assigns["element_gen_time"] = element_gen_time
   end
 
-  --- @spec #add_blueprint_to_crafting_queue(player_name: String): Boolean
+  --- @spec #add_blueprint_to_crafting_queue(player_name: String): (added: Boolean, err: Any)
   function ic:add_blueprint_to_crafting_queue(player_name, blueprint_id)
     local blueprint = self.registered_element_blueprints[blueprint_id]
 
@@ -173,19 +314,30 @@ do
       if kv then
         local queue = kv:get("queue", {})
         local size = kv:get("size", 0)
+        local head = kv:get("head", 0)
+        local tail = kv:get("tail", 0)
 
+        if size < 1 then
+          head = 1
+        end
         size = size + 1
-        queue[size] = blueprint_id
+        tail = tail + 1
+        queue[tail] = blueprint_id
 
         kv:put_all({
           queue = queue,
           size = size,
+          head = head,
+          tail = tail,
         })
 
-        return true
+        return true, ElementSystem.CraftingErrors.OK
+      else
+        return false, ElementSystem.CraftingErrors.PLAYER_NOT_FOUND
       end
     end
-    return false
+
+    return false, ElementSystem.CraftingErrors.BLUEPRINT_NOT_FOUND
   end
 
   --- Clears blueprint crafting queue for specific player.
@@ -199,6 +351,8 @@ do
       kv:put_all({
         queue = {},
         size = 0,
+        head = 0,
+        tail = 0,
         cursor = 0,
         time = 0.0,
         time_max = 0.0,
@@ -221,17 +375,27 @@ do
       local queue = kv:get("queue")
       local size = kv:get("size", 0)
       local cursor = kv:get("cursor")
+      local state = kv:get("state")
+      local time = kv:get("time")
+      local time_max = kv:get("time_max")
+      local craft_error = kv:get("craft_error")
+      local current_item
+      local next_item
 
       if size > 0 then
-        return {
-          current_item = queue[cursor],
-          size = size,
-          time = kv:get("time"),
-          time_max = kv:get("time_max"),
-          state = kv:get("state"),
-          craft_error = kv:get("craft_error"),
-        }
+        current_item = queue[cursor]
+        next_item = queue[cursor + 1]
       end
+
+      return {
+        current_item = current_item,
+        next_item = next_item,
+        size = size,
+        time = time,
+        time_max = time_max,
+        state = state,
+        craft_error = craft_error,
+      }
     end
 
     return nil
@@ -252,7 +416,7 @@ do
     return true
   end
 
-  --- @spec #all_blueprint_crafting_queue(player_name: String): String
+  --- @spec #all_blueprint_crafting_queue(player_name: String): [String]
   function ic:all_blueprint_crafting_queue(player_name)
     local kv = self:get_player_element_crafting_kv(player_name)
 
@@ -260,15 +424,19 @@ do
 
     if kv then
       local size = kv:get("size", 0)
-      local cursor = kv:get("cursor", 0)
       local queue = kv:get("queue")
 
       if queue and size > 0 then
-        local item
-        for i = 1,size do
-          item = queue[cursor + i]
+        local head = kv:get("head", 0)
+        local tail = kv:get("tail", 0)
 
-          result[i] = item
+        local item
+        local idx = 0
+        for i = head,tail do
+          idx = idx + 1
+          item = queue[i]
+
+          result[idx] = item
         end
       end
     end
@@ -283,8 +451,11 @@ do
     if kv then
       if kv:get("size", 0) > 0 then
         local cursor = kv:get("cursor")
+        local queue = kv:get("queue")
 
-        return kv:get("queue")[cursor]
+        if queue then
+          return queue[cursor]
+        end
       end
     end
 
@@ -300,30 +471,40 @@ do
     local queue = kv:get("queue")
     local size = kv:get("size", 0)
 
-    if size <= 0 then
+    if size < 1 then
       -- abort early
       return
     end
 
+    local player_stats = self.m_player_stats
+
     local cursor = kv:get("cursor", 0)
+    local head = kv:get("head", 0.0)
+    local tail = kv:get("tail", 0.0)
     local time = kv:get("time", 0.0)
     local time_max = kv:get("time_max", 0.0)
     local state = kv:get("state", ElementSystem.States.NEW)
     local craft_error = kv:get("craft_error", ElementSystem.CraftingErrors.OK)
+
     local should_save = false
     local should_break = false
-    local available_element = get_player_stat(player_stats, player, "element")
+    local available_element = player_stats:get_player_stat(player, "element")
+
+    local emit_event
+    local event
+    local blueprint_id
+    local blueprint
 
     while queue and size > 0 do
       if state == ElementSystem.States.NEW then
         -- Try pulling a new blueprint off queue
-        local blueprint_id = queue[cursor + 1]
-        local blueprint = self.registered_element_blueprints[blueprint_id]
+        blueprint_id = queue[cursor + 1]
+        blueprint = self.registered_element_blueprints[blueprint_id]
 
         if blueprint then
-          if blueprint.cost < available_element then
+          if blueprint.cost <= available_element then
             available_element = available_element - blueprint.cost
-            set_player_stat(player_stats, player, "element", available_element)
+            player_stats:set_player_stat(player, "element", available_element)
 
             cursor = cursor + 1
             time = time + blueprint.duration
@@ -331,25 +512,35 @@ do
             state = ElementSystem.States.CRAFTING
             craft_error = ElementSystem.CraftingErrors.OK
             should_save = true
+
+            emit_event = "craft.started"
           else
             craft_error = ElementSystem.CraftingErrors.NOT_ENOUGH_ELEMENT
+            should_save = true
             should_break = true
+
+            emit_event = "craft.error"
           end
         else
           -- increment cursor
           cursor = cursor + 1
+          -- increase the head, since the item is being removed
           -- clear the current item
-          queue[cursor] = nil
+          queue[head] = nil
+          head = head + 1
           -- decrement size
           size = size - 1
           craft_error = ElementSystem.CraftingErrors.BLUEPRINT_NOT_FOUND
           should_save = true
+
+          emit_event = "craft.error"
         end
       elseif state == ElementSystem.States.CRAFTING then
         if time > 0 then
           -- decrement time as needed
           time = time - dt
           should_save = true
+          emit_event = "craft.crafting"
         end
 
         if time <= 0 then
@@ -359,8 +550,8 @@ do
           should_break = true
         end
       elseif state == ElementSystem.States.OUTPUT then
-        local blueprint_id = queue[cursor]
-        local blueprint = assert(self.registered_element_blueprints[blueprint_id])
+        blueprint_id = queue[cursor]
+        blueprint = assert(self.registered_element_blueprints[blueprint_id])
         -- whether or not to advance to the next state
         local should_advance = false
 
@@ -375,20 +566,26 @@ do
             craft_error = ElementSystem.CraftingErrors.OK
             should_save = true
             should_advance = true
+
+            emit_event = "craft.completed"
           else
             craft_error = ElementSystem.CraftingErrors.NOT_ENOUGH_SPACE_FOR_ITEM
             should_save = true
+
+            emit_event = "craft.error"
           end
         else
           -- Skip the missing blueprint
           craft_error = ElementSystem.CraftingErrors.BLUEPRINT_NOT_FOUND
           should_advance = true
+
+          emit_event = "craft.error"
         end
 
         if should_advance then
-          queue[cursor] = nil
-          cursor = cursor + 1
-          size = math.max(size - 1, 0)
+          queue[head] = nil
+          head = head + 1
+          size = size - 1
 
           state = ElementSystem.States.NEW
           should_save = true
@@ -398,12 +595,54 @@ do
         minetest.log("warning", "bad crafting state, returning to NEW")
         state = ElementSystem.States.NEW
         should_save = true
+
+        emit_event = "craft.error"
       end
 
-      if size == 0 then
+      if emit_event then
+        event = {
+          type = emit_event,
+          player_name = player_name,
+          player = player,
+          blueprint_id = blueprint_id,
+          blueprint = blueprint,
+          time = time,
+          time_max = time_max,
+          state = state,
+          craft_error = craft_error,
+        }
+
+        -- print(event.type,
+        --   "time=" .. event.time ..
+        --   " time_max=" .. event.time_max ..
+        --   " head=" .. head ..
+        --   " tail=" .. tail ..
+        --   " size=" .. size ..
+        --   " blueprint_id=" .. dump(blueprint_id)
+        -- )
+
+        if emit_event == "craft.started" then
+          self:trigger_on_craft_started(event)
+        elseif emit_event == "craft.crafting" then
+          self:trigger_on_craft_crafting(event)
+        elseif emit_event == "craft.error" then
+          self:trigger_on_craft_error(event)
+        elseif emit_event == "craft.completed" then
+          self:trigger_on_craft_completed(event)
+        end
+
+        emit_event = nil
+      end
+
+      if size < 1 then
+        -- reset values
         cursor = 0
+        head = 0
+        tail = 0
         time = 0.0
         time_max = 0.0
+
+        should_save = true
       end
 
       if should_save then
@@ -411,6 +650,8 @@ do
           queue = queue,
           cursor = cursor,
           size = size,
+          head = head,
+          tail = tail,
           time = time,
           time_max = time_max,
           state = state,

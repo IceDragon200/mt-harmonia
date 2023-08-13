@@ -1,5 +1,6 @@
 local mod = harmonia_element
 local element = assert(harmonia.element)
+local player_service = assert(nokore.player_service)
 
 minetest.register_chatcommand("unlock_my_element_blueprint", {
   description = mod.S("Unlock an Element Blueprint for yourself"),

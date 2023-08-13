@@ -18,6 +18,12 @@ mod:require("items.lua")
 
 mod:require("stats.lua")
 
+mod.register_stats(nokore.player_stats)
+
 if foundation.is_module_present("yatm_autotest") then
   mod:require("autotest.lua")
+end
+
+if foundation.is_module_present("foundation_unit_test") then
+  mod:require("tests.lua")
 end

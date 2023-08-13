@@ -5,6 +5,7 @@ local BLUEPRINT_DATA_DOMAIN = "element_blueprints"
 local CRAFTING_DATA_DOMAIN = "element_crafting"
 
 local player_data_service = assert(nokore.player_data_service)
+local player_stats = assert(nokore.player_stats)
 
 player_data_service:register_domain(BLUEPRINT_DATA_DOMAIN, {
   save_method = "marshall",
@@ -17,6 +18,8 @@ player_data_service:register_domain(CRAFTING_DATA_DOMAIN, {
 harmonia = rawget(_G, "harmonia") or {}
 
 harmonia.element = harmonia_element.ElementSystem:new{
+  player_data_service = player_data_service,
+  player_stats = player_stats,
   blueprint_data_domain = BLUEPRINT_DATA_DOMAIN,
   crafting_data_domain = CRAFTING_DATA_DOMAIN,
 }
@@ -47,8 +50,8 @@ local function backfill_element_blueprints()
       if item.element_blueprint == nil then
         local element_blueprint = {
           id = name,
-          cost = 16,
-          duration = 3,
+          cost = 20,
+          duration = 30,
         }
 
         minetest.override_item(name, {

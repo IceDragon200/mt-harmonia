@@ -1,54 +1,59 @@
--- Register the player's element stat, this is the amount of element stored
-nokore.player_stats:register_stat("element", {
-  cached = false,
+local mod = harmonia_element
 
-  calc = function (_self, player)
-    local meta = player:get_meta()
-    return meta:get_int("element")
-  end,
+--- @spec register_stats(player_stats: nokore.PlayerStats): void
+function mod.register_stats(player_stats)
+  -- Register the player's element stat, this is the amount of element stored
+  player_stats:register_stat("element", {
+    cached = false,
 
-  set = function(_self, player, value)
-    local meta = player:get_meta()
-    meta:set_int("element", value)
-    return true
-  end,
-})
+    calc = function (_self, player)
+      local meta = player:get_meta()
+      return meta:get_int("element")
+    end,
 
-nokore.player_stats:register_stat("element_regen", {
-  cached = true,
+    set = function(_self, player, value)
+      local meta = player:get_meta()
+      meta:set_int("element", value)
+      return true
+    end,
+  })
 
-  calc = function (self, player)
-    -- the element regen affects how much element is recovered per second
-    local meta = player:get_meta()
-    local element_regen = meta:get_int("element_regen")
+  player_stats:register_stat("element_regen", {
+    cached = true,
 
-    return self:apply_modifiers(player, element_regen)
-  end,
-})
+    calc = function (self, player)
+      -- the element regen affects how much element is recovered per second
+      local meta = player:get_meta()
+      local element_regen = meta:get_int("element_regen")
 
-nokore.player_stats:register_stat("element_degen", {
-  cached = true,
+      return self:apply_modifiers(player, element_regen)
+    end,
+  })
 
-  calc = function (self, player)
-    -- the element regen affects how much element is lost per second
-    local meta = player:get_meta()
-    local element_degen = meta:get_int("element_degen")
+  player_stats:register_stat("element_degen", {
+    cached = true,
 
-    return self:apply_modifiers(player, element_degen)
-  end,
-})
+    calc = function (self, player)
+      -- the element regen affects how much element is lost per second
+      local meta = player:get_meta()
+      local element_degen = meta:get_int("element_degen")
 
--- This is the player's maximum available element
-nokore.player_stats:register_stat("element_max", {
-  cached = true,
+      return self:apply_modifiers(player, element_degen)
+    end,
+  })
 
-  calc = function (self, player)
-    -- the element_max in the meta is a fixed amount that a player
-    -- can receive, normally this would be affected by things like armour
-    -- or abilities
-    local meta = player:get_meta()
-    local element_max = meta:get_int("element_max")
+  -- This is the player's maximum available element
+  player_stats:register_stat("element_max", {
+    cached = true,
 
-    return self:apply_modifiers(player, element_max)
-  end,
-})
+    calc = function (self, player)
+      -- the element_max in the meta is a fixed amount that a player
+      -- can receive, normally this would be affected by things like armour
+      -- or abilities
+      local meta = player:get_meta()
+      local element_max = meta:get_int("element_max")
+
+      return self:apply_modifiers(player, element_max)
+    end,
+  })
+end
