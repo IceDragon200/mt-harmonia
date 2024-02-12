@@ -270,7 +270,7 @@ do
     local element_degen = player_stats:get_player_stat(player, "element_degen")
 
     -- element *gen
-    local element_gen_time = assigns["element_gen_time"] or 0
+    local element_gen_time = assigns.element_gen_time or 0
     element_gen_time = element_gen_time + dt
 
     if element_gen_time > 1 then
@@ -301,7 +301,7 @@ do
       player_stats:set_player_stat(player, "element", element)
     end
 
-    assigns["element_gen_time"] = element_gen_time
+    assigns.element_gen_time = element_gen_time
   end
 
   --- @spec #add_blueprint_to_crafting_queue(player_name: String): (added: Boolean, err: Any)
@@ -312,10 +312,11 @@ do
       local kv = self:get_player_element_crafting_kv(player_name)
 
       if kv then
-        local queue = kv:get("queue", {})
-        local size = kv:get("size", 0)
-        local head = kv:get("head", 0)
-        local tail = kv:get("tail", 0)
+        local data = kv.data
+        local queue = data.queue or {}
+        local size = data.size or 0
+        local head = data.head or 0
+        local tail = data.tail or 0
 
         if size < 1 then
           head = 1
@@ -324,12 +325,11 @@ do
         tail = tail + 1
         queue[tail] = blueprint_id
 
-        kv:put_all({
-          queue = queue,
-          size = size,
-          head = head,
-          tail = tail,
-        })
+        data.queue = queue
+        data.size = size
+        data.head = head
+        data.tail = tail
+        kv:mark_dirty()
 
         return true, ElementSystem.CraftingErrors.OK
       else
@@ -467,9 +467,10 @@ do
     local player_name = player:get_player_name()
 
     local kv = self:get_player_element_crafting_kv(player_name)
+    local data = kv.data
 
-    local queue = kv:get("queue")
-    local size = kv:get("size", 0)
+    local queue = data.queue
+    local size = data.size or 0
 
     if size < 1 then
       -- abort early
@@ -478,13 +479,13 @@ do
 
     local player_stats = self.m_player_stats
 
-    local cursor = kv:get("cursor", 0)
-    local head = kv:get("head", 0.0)
-    local tail = kv:get("tail", 0.0)
-    local time = kv:get("time", 0.0)
-    local time_max = kv:get("time_max", 0.0)
-    local state = kv:get("state", ElementSystem.States.NEW)
-    local craft_error = kv:get("craft_error", ElementSystem.CraftingErrors.OK)
+    local cursor = data.cursor or 0
+    local head = data.head or 0.0
+    local tail = data.tail or 0.0
+    local time = data.time or 0.0
+    local time_max = data.time_max or 0.0
+    local state = data.state or ElementSystem.States.NEW
+    local craft_error = data.craft_error or ElementSystem.CraftingErrors.OK
 
     local should_save = false
     local should_break = false
