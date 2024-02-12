@@ -94,6 +94,7 @@ do
   -- API
   --
 
+  --- @spec #get_player_domain_kv_by_name(player_name: String): nokore.KVStore
   function ic:get_player_domain_kv_by_name(player_name)
     return self.player_data_service:get_player_domain_kv(player_name, self.m_data_domain)
   end
