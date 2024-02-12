@@ -11,6 +11,6 @@ mod:require("config.lua")
 mod:require("api.lua")
 
 nokore_proxy.register_globalstep(
-  "hamornia_world_mana:update_blocks/1",
-  harmonia_world_mana.update_blocks
+  "hamornia_world_mana:update/2",
+  harmonia_world_mana.update
 )
