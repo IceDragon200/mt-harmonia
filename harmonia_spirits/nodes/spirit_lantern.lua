@@ -77,15 +77,21 @@ local ATTRS = {
   },
 }
 
+local function on_load(pos)
+  local meta = minetest.get_meta(pos)
+
+  local inv = meta:get_inventory()
+
+  inv:set_size("main", 1)
+end
+
 local function on_construct(pos)
   local meta = minetest.get_meta(pos)
 
   meta:set_int("mana", 0)
   meta:set_int("corrupted_mana", 0)
 
-  local inv = meta:get_inventory()
-
-  inv:set_size("main", 1)
+  on_load(pos)
 end
 
 local function render_formspec(pos, player, state)
@@ -441,7 +447,24 @@ for _i, entry in ipairs(ATTRS) do
 end
 
 --
+-- Hooks
 --
+
+-- This LBM is here to deal with old or broken spirit lanterns (i.e. inventory changed)
+minetest.register_lbm({
+  label = "Migrate Spirit Lantern",
+
+  nodenames = {"group:spirit_lantern_with_core"},
+
+  name = mod:make_name("migrate_spirit_lantern"),
+
+  run_at_every_load = true,
+
+  action = function (pos, _node)
+    on_load(pos)
+  end,
+})
+
 minetest.register_abm({
   label = "Spirit Lantern Luring",
 
