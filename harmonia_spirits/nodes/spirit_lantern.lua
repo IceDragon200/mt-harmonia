@@ -465,6 +465,88 @@ minetest.register_lbm({
   end,
 })
 
+--- @private.spec run_luring(pos: Vector3, node: NodeRef): void
+local function run_luring(pos, node)
+  local meta = minetest.get_meta(pos)
+  local nodedef = minetest.registered_nodes[node.name]
+
+  if not nodedef.harmonia then
+    return
+  end
+
+  local mana = meta:get_float("mana")
+  local corrupted_mana = meta:get_float("corrupted_mana")
+
+  local available_mana = mana + corrupted_mana
+  local max_mana = nodedef.harmonia.max_mana + meta:get_float("add_max_mana")
+
+  if available_mana > MINIMUM_MANA_FOR_LURE then
+    local rand = math.random(max_mana)
+
+    local spirit_name
+    local is_corrupted = false
+
+    if rand > 0 and rand < corrupted_mana then
+      -- Run corrupted branch
+      spirit_name = mod.weighted_corrupted_spirits:random()
+      is_corrupted = true
+    elseif rand > corrupted_mana and rand <= available_mana then
+      -- Run clean mana branch
+      spirit_name = mod.weighted_spirits:random()
+    else
+      -- skip
+    end
+
+    if spirit_name then
+      local inv = meta:get_inventory()
+
+      local stack = ItemStack(spirit_name)
+      -- Spirits actively consume mana, whether or not they are captured by the lantern
+      local spirit_consumes = MINIMUM_MANA_FOR_LURE
+      local leftover_mana
+      local used
+      if is_corrupted then
+        -- if the spirit was corrupted, then use as much corrupted mana as possible
+        -- first
+        leftover_mana = math.max(corrupted_mana - spirit_consumes, 0)
+        spirit_consumes = spirit_consumes - (corrupted_mana - leftover_mana)
+        corrupted_mana = leftover_mana
+
+        -- then use the clean mana
+        leftover_mana = math.max(mana - spirit_consumes, 0)
+        spirit_consumes = spirit_consumes - (mana - leftover_mana)
+        mana = leftover_mana
+      else
+        -- otherwise use as much clean mana first
+        leftover_mana = math.max(mana - spirit_consumes, 0)
+        spirit_consumes = spirit_consumes - (mana - leftover_mana)
+        mana = leftover_mana
+
+        -- then use as much corrupted mana to finish off
+        leftover_mana = math.max(corrupted_mana - spirit_consumes, 0)
+        spirit_consumes = spirit_consumes - (corrupted_mana - leftover_mana)
+        corrupted_mana = leftover_mana
+      end
+
+      local leftover = inv:add_item("main", stack)
+
+      if leftover:is_empty() then
+        -- meaning it was placed into the inventory
+      else
+        -- TODO: maybe release the spirit into the block's inventory temporarily
+      end
+    end
+  end
+
+  meta:set_float("mana", mana)
+  meta:set_float("corrupted_mana", corrupted_mana)
+
+  local fun = nodedef.harmonia.refresh_spirit_lantern
+  if fun then
+    fun(pos, node, "abm:spirit_lantern_luring")
+  end
+end
+
 minetest.register_abm({
   label = "Spirit Lantern Luring",
 
@@ -475,80 +557,5 @@ minetest.register_abm({
   interval = 10,
   chance = 1,
 
-  action = function (pos, node)
-    local meta = minetest.get_meta(pos)
-    local nodedef = minetest.registered_nodes[node.name]
-
-    local mana = meta:get_float("mana")
-    local corrupted_mana = meta:get_float("corrupted_mana")
-
-    local max_mana = mana + corrupted_mana
-
-    if max_mana > MINIMUM_MANA_FOR_LURE then
-      local rand = math.random(nodedef.harmonia.max_mana)
-
-      local spirit_name
-      local is_corrupted = false
-
-      if rand > 0 and rand < corrupted_mana then
-        -- Run corrupted branch
-        spirit_name = mod.weighted_corrupted_spirits:random()
-        is_corrupted = true
-      elseif rand > corrupted_mana and rand <= max_mana then
-        -- Run clean mana branch
-        spirit_name = mod.weighted_spirits:random()
-      else
-        -- skip
-      end
-
-      if spirit_name then
-        local inv = meta:get_inventory()
-
-        local stack = ItemStack(spirit_name)
-        -- Spirits actively consume mana, whether or not they are captured by the lantern
-        local spirit_consumes = MINIMUM_MANA_FOR_LURE
-        local leftover_mana
-        local used
-        if is_corrupted then
-          -- if the spirit was corrupted, then use as much corrupted mana as possible
-          -- first
-          leftover_mana = math.max(corrupted_mana - spirit_consumes, 0)
-          spirit_consumes = spirit_consumes - (corrupted_mana - leftover_mana)
-          corrupted_mana = leftover_mana
-
-          -- then use the clean mana
-          leftover_mana = math.max(mana - spirit_consumes, 0)
-          spirit_consumes = spirit_consumes - (mana - leftover_mana)
-          mana = leftover_mana
-        else
-          -- otherwise use as much clean mana first
-          leftover_mana = math.max(mana - spirit_consumes, 0)
-          spirit_consumes = spirit_consumes - (mana - leftover_mana)
-          mana = leftover_mana
-
-          -- then use as much corrupted mana to finish off
-          leftover_mana = math.max(corrupted_mana - spirit_consumes, 0)
-          spirit_consumes = spirit_consumes - (corrupted_mana - leftover_mana)
-          corrupted_mana = leftover_mana
-        end
-
-        local leftover = inv:add_item("main", stack)
-
-        if leftover:is_empty() then
-          -- meaning it was placed into the inventory
-        else
-          -- TODO: maybe release the spirit into the block's inventory temporarily
-        end
-      end
-    end
-
-    meta:set_float("mana", mana)
-    meta:set_float("corrupted_mana", corrupted_mana)
-
-    if nodedef.harmonia then
-      if nodedef.harmonia.refresh_spirit_lantern then
-        nodedef.harmonia.refresh_spirit_lantern(pos, node, "abm:spirit_lantern_luring")
-      end
-    end
-  end,
+  action = run_luring,
 })
