@@ -3,7 +3,7 @@
 ---
 ---   Adds passive abilities and effects to entities.
 ---
-local mod = foundation.new_module("harmonia_passive", "0.1.0")
+local mod = foundation.new_module("harmonia_passive", "0.2.0")
 
 local player_data_service = assert(nokore.player_data_service)
 

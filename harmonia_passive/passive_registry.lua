@@ -26,9 +26,50 @@ do
     ---   time: Float,
     ---   time_max: Float,
     ---   counter: Integer,
-    ---   dtime: Float
+    ---   dtime: Float,
+    ---   assigns: Table
     --- ) => (time: Float, counter: Integer)
     self.def_update = def.update
+
+    --- @member def_on_added: (
+    ---   self: PassiveDefinition,
+    ---   player: PlayerRef,
+    ---   time: Float,
+    ---   time_max: Float,
+    ---   counter: Integer,
+    ---   assigns: Table
+    --- ): void
+    self.def_on_added = def.on_added
+
+    --- @member def_on_changed: (
+    ---   self: PassiveDefinition,
+    ---   player: PlayerRef,
+    ---   time: Float,
+    ---   time_max: Float,
+    ---   counter: Integer,
+    ---   assigns: Table
+    --- ): void
+    self.def_on_changed = def.on_changed
+
+    --- @member def_on_expired: (
+    ---   self: PassiveDefinition,
+    ---   player: PlayerRef,
+    ---   time: Float,
+    ---   time_max: Float,
+    ---   counter: Integer,
+    ---   assigns: Table
+    --- ): void
+    self.def_on_expired = def.on_expired
+
+    --- @member def_on_removed: (
+    ---   self: PassiveDefinition,
+    ---   player: PlayerRef,
+    ---   time: Float,
+    ---   time_max: Float,
+    ---   counter: Integer,
+    ---   assigns: Table
+    --- ): void
+    self.def_on_removed = def.on_removed
 
     --- Whenever the counter on the passive changes this callback will be called.
     ---
@@ -40,6 +81,37 @@ do
     ---
     --- @member decrement_on_expire: Boolean
     self.decrement_on_expire = def.decrement_on_expire or false
+
+    --- @member stats: Table
+    self.stats = def.stats
+  end
+
+  --- @spec #on_added(PlayerRef, Float, Float, Integer, Table): void
+  function ic:on_added(player, time, time_max, counter, assigns)
+    if self.def_on_added then
+      self:def_on_added(player, time, time_max, counter, assigns)
+    end
+  end
+
+  --- @spec #on_changed(PlayerRef, Float, Float, Integer, Table): void
+  function ic:on_changed(player, time, time_max, counter, assigns)
+    if self.def_on_changed then
+      self:def_on_changed(player, time, time_max, counter, assigns)
+    end
+  end
+
+  --- @spec #on_expired(PlayerRef, Float, Float, Integer, Table): void
+  function ic:on_expired(player, time, time_max, counter, assigns)
+    if self.def_on_expired then
+      self:def_on_expired(player, time, time_max, counter, assigns)
+    end
+  end
+
+  --- @spec #on_removed(PlayerRef, Float, Float, Integer, Table): void
+  function ic:on_removed(player, time, time_max, counter, assigns)
+    if self.def_on_removed then
+      self:def_on_removed(player, time, time_max, counter, assigns)
+    end
   end
 
   --- @spec #update(
@@ -47,11 +119,12 @@ do
   ---   time: Float,
   ---   time_max: Float,
   ---   counter: Integer,
-  ---   dtime: Float
+  ---   dtime: Float,
+  ---   assigns: Table
   --- ): (time: Float, counter: Integer)
-  function ic:update(player, time, time_max, counter, dtime)
+  function ic:update(player, time, time_max, counter, dtime, assigns)
     if self.def_update then
-      time, counter = self:def_update(player, time, time_max, counter)
+      time, counter = self:def_update(player, time, time_max, counter, dtime, assigns)
     else
       time = time - dtime
     end

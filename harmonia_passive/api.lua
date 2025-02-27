@@ -19,29 +19,22 @@ function mod.enable_stat_modifier(stat_name)
     local cbname = mod:make_name("mod_" .. stat_name .. "_" .. modifier_name)
 
     nokore.player_stats:register_stat_modifier(stat_name, cbname, modifier_name, function (player, value)
-      local player_name = player:get_player_name()
-      local upgrades = hsw.nanosuit_upgrades:get_player_upgrade_states(player_name)
+      local stat_def
+      local modifier
 
-      if upgrades then
-        local upgrade
-        local upgrade_stat
+      return harmonia.passive.system:reduce_player_passives(player, value, function (passive, time, time_max, counter, assigns, acc)
+        if passive.stats then
+          stat_def = passive.stats[stat_name]
 
-        for upgrade_name, upgrade_state in pairs(upgrades) do
-          upgrade = hsw.nanosuit_upgrades.registered_upgrades[upgrade_name]
-          if upgrade then
-            if upgrade.stats then
-              upgrade_stat = upgrade.stats[stat_name]
-              if upgrade_stat then
-                if upgrade_stat[modifier_name] then
-                  value = upgrade_stat[modifier_name](upgrade, player, value)
-                end
-              end
+          if stat then
+            modifier = stat_def[modifier_name]
+            if modifier then
+              acc = modifier(passive, player, acc, time, time_max, counter, assigns)
             end
           end
         end
-      end
-
-      return value
+        return acc
+      end)
     end)
   end
 end
