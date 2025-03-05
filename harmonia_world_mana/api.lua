@@ -2,6 +2,7 @@
 local mod = assert(harmonia_world_mana)
 
 local Vector3 = assert(foundation.com.Vector3)
+local v3add = assert(Vector3.add)
 local Directions = assert(foundation.com.Directions)
 local block_data_service = assert(nokore.block_data_service)
 local hash_node_position = assert(minetest.hash_node_position)
@@ -58,11 +59,12 @@ function harmonia_world_mana.add_mana_in_block(block_id, amount)
   local block = block_data_service:get_block(block_id)
 
   if block then
-    local mana = block.kv:get("mana", 0)
+    local kv = block.kv
+    local mana = kv:get("mana", 0)
 
     mana = mana + amount
 
-    block.kv:put("mana", mana)
+    kv:put("mana", mana)
 
     return amount
   end
@@ -86,11 +88,12 @@ function harmonia_world_mana.consume_corrupted_mana_in_block(block_id, amount)
   local block = block_data_service:get_block(block_id)
 
   if block then
-    local mana = block.kv:get("corrupted_mana", 0)
+    local kv = block.kv
+    local mana = kv:get("corrupted_mana", 0)
 
     local leftover = math.max(mana - amount, 0)
 
-    block.kv:put("corrupted_mana", leftover)
+    kv:put("corrupted_mana", leftover)
 
     return mana - leftover
   end
@@ -103,11 +106,12 @@ function harmonia_world_mana.add_corrupted_mana_in_block(block_id, amount)
   local block = block_data_service:get_block(block_id)
 
   if block then
-    local mana = block.kv:get("mana", 0)
+    local kv = block.kv
+    local mana = kv:get("corrupted_mana", 0)
 
     mana = mana + amount
 
-    block.kv:put("mana", mana)
+    kv:put("corrupted_mana", mana)
 
     return amount
   end
@@ -117,22 +121,19 @@ end
 
 --- @local elapsed: Float
 local elapsed = 0
+local dir6_to_vec3 = assert(Directions.DIR6_TO_VEC3)
 
-function harmonia_world_mana.update_block(delta, blocks, block_id, block, trace)
+function harmonia_world_mana.update_block(
+  delta,
+  overflown,
+  overflow_threshold,
+  blocks,
+  block_id,
+  block,
+  trace
+)
   local mana
-  local corrupted_mana
-  local excess_mana
   local kv
-  local block_id
-  local pos = Vector3.new(0, 0, 0)
-  local other_block
-  local other_kv
-  local other_mana
-  local diff
-  local overflow_threshold = mod.config.MANA_OVERFLOW_THRESHOLD
-  local dir6_to_vec3 = Directions.DIR6_TO_VEC3
-  local dir = nil
-  local vec3 = nil
 
   local mana_delta = 10 * delta
 
@@ -140,64 +141,89 @@ function harmonia_world_mana.update_block(delta, blocks, block_id, block, trace)
   --- Do not do this in your code, the code here is making optimizations here to avoid
   --- the function call overhead
   mana = (kv.data.mana or 0) + mana_delta
-  corrupted_mana = kv.data.corrupted_mana or 0
 
   if mana > overflow_threshold then
-    --- The first thing a block will attempt to do is overflow its mana
-    --- into other blocks to stabilize itself
-    dir = nil
-    dir, vec3 = next(dir6_to_vec3, dir)
-    while dir do
-      pos = Vector3.add(pos, block.pos, vec3)
-      block_id = hash_node_position(pos)
+    overflown[block_id] = mana
+  else
+    kv.data.mana = mana
+    kv:mark_dirty()
+  end
+end
 
-      other_block = blocks[block_id]
+function harmonia_world_mana.update_overflow(delta, overflown, overflow_threshold, blocks, span)
+  local corrupted_mana
+  local excess_mana
+  local other_block_id
+  local pos = Vector3.new(0, 0, 0)
+  local block
+  local kv
+  local kv_data
+  local other_block
+  local other_kv
+  local other_mana
+  local diff
 
-      if other_block then
-        other_kv = other_block.kv
-        other_mana = other_kv.data["mana"] or 0
+  for block_id, mana in pairs(overflown) do
+    block = blocks[block_id]
+    if block then
+      kv = block.kv
+      kv_data = kv.data
+      corrupted_mana = kv_data.corrupted_mana or 0
 
-        -- we can overflow mana unless the target block has less mana
-        -- than the donor
-        if other_mana < mana then
-          -- calculate the difference (and offset by 1)
-          diff = mana - other_mana - 1
-          if diff > 0 then
-            -- add the excess mana to the other block
-            other_kv.data.mana = other_mana + diff
-            other_kv:mark_dirty()
-            -- and remove it from donor block
-            mana = mana - diff
+      --- The first thing a block will attempt to do is overflow its mana
+      --- into other blocks to stabilize itself
+      for dir, vec3 in pairs(dir6_to_vec3) do
+        pos = v3add(pos, block.pos, vec3)
+        other_block_id = hash_node_position(pos)
+
+        other_block = blocks[other_block_id]
+
+        if other_block then
+          other_kv = other_block.kv
+          other_mana = other_kv.data.mana or 0
+
+          -- we can overflow mana unless the target block has less mana
+          -- than the donor
+          if other_mana < mana then
+            -- calculate the difference (and offset by 1)
+            diff = mana - other_mana - 1
+            if diff > 0 then
+              -- add the excess mana to the other block
+              other_kv.data.mana = other_mana + diff
+              other_kv:mark_dirty()
+              -- and remove it from donor block
+              mana = mana - diff
+            end
           end
+        end
+
+        if mana <= overflow_threshold then
+          break
         end
       end
 
-      if mana <= overflow_threshold then
-        break
-      end
-      dir, vec3 = next(dir6_to_vec3, dir)
+      --
+      excess_mana = mana - overflow_threshold
+      corrupted_mana = corrupted_mana + excess_mana
+      mana = mana - excess_mana
+
+      kv_data.mana = mana
+      kv_data.corrupted_mana = corrupted_mana
+      kv:mark_dirty()
     end
   end
-
-  if mana > overflow_threshold then
-    --
-    excess_mana = mana - overflow_threshold
-    corrupted_mana = corrupted_mana + excess_mana
-    mana = mana - excess_mana
-  end
-
-  kv.data.mana = mana
-  kv.data.corrupted_mana = corrupted_mana
-  kv:mark_dirty()
 end
 
 local STEP_INTERVAL = 1 / 20 -- 50ms
+
+local overflown = {}
 
 --- @spec update(delta: Float, trace: foundation.com.Trace): void
 function harmonia_world_mana.update(delta, trace)
   elapsed = elapsed + delta
 
   if elapsed > STEP_INTERVAL then
+    local overflow_threshold = mod.config.MANA_OVERFLOW_THRESHOLD
     elapsed = elapsed - STEP_INTERVAL
 
     local span
@@ -210,11 +236,30 @@ function harmonia_world_mana.update(delta, trace)
       -- if trace then
       --   span = trace:span_start("block:" .. block_id)
       -- end
-      harmonia_world_mana.update_block(0.1, blocks, block_id, block, span)
+      harmonia_world_mana.update_block(
+        STEP_INTERVAL,
+        overflown,
+        overflow_threshold,
+        blocks,
+        block_id,
+        block,
+        span
+      )
       -- if span then
       --   span:span_end()
       -- end
       -- span = nil
+    end
+
+    if next(overflown) then
+      harmonia_world_mana.update_overflow(
+        STEP_INTERVAL,
+        overflown,
+        overflow_threshold,
+        blocks,
+        span
+      )
+      overflown = {}
     end
   end
 end
