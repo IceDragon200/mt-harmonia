@@ -10,9 +10,8 @@ player_stats:register_stat("mana", {
   end,
 
   set = function (_self, player, value)
-    local meta = player:get_meta()
-
-    meta:set_int("mana", value)
+    --- player_stats should be the only one that calls this function
+    harmonia.mana:set_player_mana(player, value)
     return true
   end
 })
