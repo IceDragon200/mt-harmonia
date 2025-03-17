@@ -10,4 +10,6 @@ mod:register_craftitem("midas_tear", {
   groups = {
     alchemical = 1,
   },
+
+  inventory_image = "harmonia_midas_tear.png",
 })
