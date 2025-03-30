@@ -22,5 +22,4 @@ Spirits are naturally attracted to places with mana as it is the life blood of t
 
 They can be attracted to spirit lanterns which naturally absorb mana.
 
-Spirits will consume the mana from the lantern and then be traped inside it.
-
+Spirits will consume the mana from the lantern and then be trapped inside it.

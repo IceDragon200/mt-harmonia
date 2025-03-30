@@ -6,6 +6,7 @@
 local mod = foundation.new_module("harmonia_spirits", "0.1.0")
 
 mod:require("api.lua")
+mod:require("hooks.lua")
 
 mod:require("spirits.lua")
 
