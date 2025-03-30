@@ -246,7 +246,7 @@ do
     return nil
   end
 
-  --- @spec #get_player_element_crafting_kv(player_name: String): nokore.KeyValueStore
+  --- @spec #get_player_element_crafting_kv(player_name: String): nokore.KVStore
   function ic:get_player_element_crafting_kv(player_name)
     local kv = self.m_player_data_service:get_player_domain_kv(player_name, self.m_crafting_data_domain)
 
