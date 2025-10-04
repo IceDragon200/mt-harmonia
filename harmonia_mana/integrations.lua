@@ -25,6 +25,8 @@ if rawget(_G, "hb") then
 end
 
 if foundation.is_module_present("nokore_player_hud") then
+  local player_stats = assert(nokore.player_stats)
+
   nokore.player_hud:register_hud_element("mana", {
     type = "statbar",
     position = {
